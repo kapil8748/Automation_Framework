@@ -38,7 +38,8 @@ application {
 }
 
 test {
-    useTestNG()
+    // useTestNG()
+     useJUnitPlatform()
 
     // Enable detailed test logging
     testLogging {

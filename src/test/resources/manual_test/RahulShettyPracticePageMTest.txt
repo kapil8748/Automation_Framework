@@ -1,0 +1,277 @@
+================================================================================
+TEST SUITE:     RAHUL SHETTY ACADEMY PRACTICE PAGE
+MODULE:         TESTING ALL FIELDS AND UI COMPONENTS
+FILE VERSION:   1.2.0
+URL TARGET:     https://rahulshettyacademy.com/AutomationPractice/
+================================================================================
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_RADIO_001
+TITLE:          Verify single radio button selection functionality
+PRIORITY:       High
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Radio Button Selection: "Radio2"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Radio Button Example" section on the top left.
+2. Click on the radio button labeled "Radio2".
+3. Click on the radio button labeled "Radio3".
+
+EXPECTED RESULT:
+1. "Radio2" is successfully selected when clicked.
+2. Clicking "Radio3" selects "Radio3" and automatically clears/unchecks "Radio2".
+3. Only one radio button remains selected at any given time.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_SUGGEST_001
+TITLE:          Verify auto-suggestive dropdown filtering and selection
+PRIORITY:       High
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Search String: "ind", Target Country: "India"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Suggestion Class Example" input field.
+2. Type the string "ind" into the input field.
+3. Observe the dynamic dropdown list that displays.
+4. Select "India" from the suggested options list.
+
+EXPECTED RESULT:
+1. An auto-suggestive dropdown menu appears as soon as matching keys are typed.
+2. Options like "British Indian Ocean Territory", "India", "Indonesia" appear.
+3. Clicking "India" populates the text field with "India" and closes the dropdown list.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_DROPDOWN_001
+TITLE:          Verify static dropdown option selection
+PRIORITY:       Medium
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Target Selection: "Option2"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Dropdown Example" HTML select element.
+2. Click on the dropdown menu to expand available options.
+3. Select "Option2" from the list.
+
+EXPECTED RESULT:
+1. The dropdown displays three options: "Option1", "Option2", and "Option3".
+2. Selecting "Option2" updates the field container to display "Option2".
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_CHECKBOX_001
+TITLE:          Verify multiple checkbox options selection and clearing
+PRIORITY:       High
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Check Targets: "Option1", "Option3"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Checkbox Example" section.
+2. Click the checkbox corresponding to "Option1".
+3. Click the checkbox corresponding to "Option3".
+4. Click the checkbox corresponding to "Option1" a second time.
+
+EXPECTED RESULT:
+1. Clicking "Option1" checks the box.
+2. Clicking "Option3" checks the box, keeping "Option1" checked simultaneously.
+3. Clicking "Option1" again clears the check mark while "Option3" stays checked.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_WINDOW_001
+TITLE:          Verify "Open Window" button launches a new browser window
+PRIORITY:       High
+TYPE:           Functional / Navigation
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      N/A
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Switch Window Example" block.
+2. Click on the "Open Window" button.
+3. Switch control to the newly opened browser window.
+
+EXPECTED RESULT:
+1. Clicking the button opens a brand new, separate browser window.
+2. The URL of the new window loads the main landing landing page of Rahul Shetty Academy.
+3. The parent practice page window remains active and unchanged in the background.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_TAB_001
+TITLE:          Verify "Open Tab" button opens a target page in a new browser tab
+PRIORITY:       High
+TYPE:           Functional / Navigation
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      N/A
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Switch Tab Example" block.
+2. Click on the "Open Tab" button.
+3. Check the browser tab bar.
+
+EXPECTED RESULT:
+1. A new browser tab opens automatically next to the active tab.
+2. The new tab loads the target URL site structure successfully.
+3. Focus can switch cleanly back to the practice tab.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_ALERT_001
+TITLE:          Verify browser javascript alert box trigger and acceptance behavior
+PRIORITY:       High
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Input Name: "Alex"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Switch To Alert Example" input box.
+2. Type "Alex" into the text field.
+3. Click on the "Alert" button.
+4. Verify the pop-up text and click "OK" on the browser native alert box.
+
+EXPECTED RESULT:
+1. A native browser alert modal window pops up blocking page interaction.
+2. The alert text matches exactly: "Hello Alex, share this practice page and share your knowledge"
+3. Clicking "OK" closes the alert successfully and restores access to the webpage.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_ALERT_002
+TITLE:          Verify browser confirmation alert cancellation behavior
+PRIORITY:       High
+TYPE:           Functional / Positive
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Input Name: "Jordan"
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Switch To Alert Example" input box.
+2. Type "Jordan" into the text field.
+3. Click on the "Confirm" button.
+4. Verify the pop-up text and click "Cancel" on the confirmation box.
+
+EXPECTED RESULT:
+1. A confirmation alert modal pop-up appears with "OK" and "Cancel" buttons.
+2. The alert text matches exactly: "Hello Jordan, Are you sure you want to confirm?"
+3. Clicking "Cancel" closes the confirmation container modal with zero error behaviors.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_TABLE_001
+TITLE:          Verify static web data table pricing column values
+PRIORITY:       Medium
+TYPE:           Data Verification
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      Course Title: "Web Security Testing with SoapUI"
+--------------------------------------------------------------------------------
+STEPS:
+1. Scroll down to the "Web Table Example" grid section.
+2. Locate the row containing the text "Web Security Testing with SoapUI".
+3. Read the corresponding monetary cost in the "Price" column for that row.
+
+EXPECTED RESULT:
+1. The table records are aligned correctly inside the target columns.
+2. The price matching "Web Security Testing with SoapUI" displays exactly as "25".
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_DISPLAY_001
+TITLE:          Verify hiding and showing text element dynamically via action buttons
+PRIORITY:       Medium
+TYPE:           Functional / UI Visibility
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      N/A
+--------------------------------------------------------------------------------
+STEPS:
+1. Locate the "Element Displayed Example" section.
+2. Confirm the presence of the text box containing the placeholder text.
+3. Click the "Hide" button.
+4. Verify the visibility status of the text box.
+5. Click the "Show" button.
+6. Verify the visibility status of the text box again.
+
+EXPECTED RESULT:
+1. Initially, the text box input field is fully visible on screen.
+2. Clicking "Hide" changes the element visibility style; the text input vanishes.
+3. Clicking "Show" restores the text input field exactly back into view.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_HOVER_001
+TITLE:          Verify mouse hover action menu item display and navigation click behavior
+PRIORITY:       Medium
+TYPE:           Functional / UI Component
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      N/A
+--------------------------------------------------------------------------------
+STEPS:
+1. Scroll down to the bottom and locate the "Mouse Hover Example" button.
+2. Hover the mouse cursor over the button container without clicking.
+3. Move the cursor away from the button box.
+4. Hover back over the button and click on the "Top" menu item that appears.
+
+EXPECTED RESULT:
+1. Hovering reveals a context overlay menu with two visible items: "Top" and "Reload".
+2. Moving the mouse cursor completely away hides the context menu items.
+3. Clicking "Top" refreshes or shifts the window context viewport back up to the top header.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
+
+--------------------------------------------------------------------------------
+TEST CASE ID:   TC_IFRAME_001
+TITLE:          Verify nested iframe scrolling and link navigation elements inside parent frame
+PRIORITY:       High
+TYPE:           Functional / Integration
+PRECONDITIONS:  User has navigated to the Rahul Shetty Automation Practice Page.
+TEST DATA:      N/A
+--------------------------------------------------------------------------------
+STEPS:
+1. Scroll down to the "iFrame Example" section box at the page footer area.
+2. Identify the embedded iframe container inside the frame window zone.
+3. Scroll down inside the iframe itself.
+4. Click on any active hyperlink (e.g., "Courses") housed entirely inside that iframe.
+
+EXPECTED RESULT:
+1. The iframe widget renders external page contents from the academy structure.
+2. Scrolling within the iframe moves inner elements without moving the parent document window.
+3. Clicking links inside the iframe navigates contents *only inside* the iframe frame bounds.
+
+ACTUAL RESULT:   [Pending Execution]
+STATUS:          [Pending / Pass / Fail / Blocked]
+BUG ID:          [N/A]
