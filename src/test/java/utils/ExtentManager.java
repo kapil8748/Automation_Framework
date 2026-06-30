@@ -6,24 +6,26 @@ import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 
 public class ExtentManager {
     private static ExtentReports extent;
-    private static final ThreadLocal<ExtentTest> testTracker = new ThreadLocal<>();
+    // ThreadLocal ensures thread-safety if running tests in parallel
+    private static final ThreadLocal<ExtentTest> testThread = new ThreadLocal<>();
 
     public static synchronized ExtentReports getInstance() {
         if (extent == null) {
-            ExtentSparkReporter spark = new ExtentSparkReporter("build/reports/extent-report.html");
+            ExtentSparkReporter spark = new ExtentSparkReporter("build/reports/ExtentReport.html");
             extent = new ExtentReports();
             extent.attachReporter(spark);
+            extent.setSystemInfo("Build Tool", "Gradle");
         }
         return extent;
     }
 
     public static void createTest(String testName) {
         ExtentTest test = getInstance().createTest(testName);
-        testTracker.set(test);
+        testThread.set(test);
     }
 
     public static ExtentTest getTest() {
-        return testTracker.get();
+        return testThread.get();
     }
 
     public static void flush() {

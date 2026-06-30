@@ -86,4 +86,44 @@ tasks.register("runSpecificTestNG", Test) {
     outputs.upToDateWhen { false }
 }
 
+// 4. New Task: SpecificTestNGTest (Configured for TestNG)
+tasks.register("SpecificTestNGTest", Test) {
+    group = 'verification'
+    description = 'Runs specific TestNG suite or groups requested by CI'
+
+    useTestNG() {
+        // Option A: Point to a specific TestNG XML file in your project
+        suites "src/test/resources/SpecificTestNGTest.xml" 
+        
+        // Option B: Or target a TestNG group by uncommenting the line below:
+        // includeGroups "SpecificTestNGTest" 
+    }
+
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        showStandardStreams = true
+    }
     
+    outputs.upToDateWhen { false }
+}
+
+// 5. New Task: SpecificJuintTest (Configured for TestNG as requested by 'testng : SpecificJuintTest')
+tasks.register("SpecificJuintTest", Test) {
+    group = 'verification'
+    description = 'Runs specific JUnit test framework runner via TestNG'
+
+    useTestNG() {
+        // Option A: Point to your second specific TestNG XML file
+        suites "src/test/resources/SpecificJuintTest.xml"
+        
+        // Option B: Or target a specific group by uncommenting the line below:
+        // includeGroups "SpecificJuintTest"
+    }
+
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        showStandardStreams = true
+    }
+    
+    outputs.upToDateWhen { false }
+}

@@ -2,7 +2,8 @@ name: Test Execution
 
 on:
   schedule:
-    - cron: '*/5 * * * *' #AM IST Tuesdays and Saturdays
+    # Runs every 5 minutes
+    - cron: '*/5 * * * *'
   push:
     branches: [ main, master ]
   pull_request:
@@ -25,15 +26,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default JUnit 5 suites and both custom framework tasks
+      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
           ./gradlew test --info
           ./gradlew runSpecificJunit --info
           ./gradlew runSpecificTestNG --info
+          ./gradlew SpecificTestNGTest --info
+          ./gradlew SpecificJuintTest --info
         continue-on-error: true # Ensures reporting runs even if tests fail
 
-      # Wildcard path captures reports from all three custom tasks
+      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
