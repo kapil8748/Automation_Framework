@@ -92,21 +92,24 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         
-      # Download each dataset straight into its matching Gradle directory
+      # Download datasets. continue-on-error prevents crashing if an artifact is missing.
       - name: Download Data 1
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: data-test1
           path: build/test-results/test
           
       - name: Download Data 2
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: data-test2
           path: build/test-results/runSpecificJunit
           
       - name: Download Data 3
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: data-test3
           path: build/test-results/runSpecificTestNG
