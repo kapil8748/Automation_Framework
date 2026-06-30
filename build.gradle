@@ -39,10 +39,9 @@ dependencies {
     testImplementation 'org.testng:testng:7.10.2'
 }
 
-// 1. The Default Test Task Configuration
+// 1. Default Task Configuration (Defaults to running ALL JUnit 5 tests)
 test {
     useJUnitPlatform {
-        // Dynamic fallback: lets you run standard './gradlew test -Dtags=smoke'
         String tags = System.getProperty('tags')
         if (tags) includeTags tags
     }
@@ -53,15 +52,13 @@ test {
     }
 }
 
-// 2. Custom Dedicated Tasks (Must be written outside the 'test' block)
-
-// Task for your JUnit 5 tagged tests
-tasks.register("specificJunitTest", Test) {
-    group = 'verification' // Organizes it in your Gradle tasks list
-    description = 'Runs specific JUnit 5 tests tagged with Specific_Test'
+// 2. Dedicated Task for JUnit 5 Tagged Tests
+tasks.register("runSpecificJunit", Test) {
+    group = 'verification'
+    description = 'Runs JUnit 5 tests tagged with specificJunitTest'
 
     useJUnitPlatform {
-        includeTags "specificJunitTest"
+        includeTags "specificJunitTest" // Match your Java source code annotation exactly
     }
     
     testLogging {
@@ -69,16 +66,16 @@ tasks.register("specificJunitTest", Test) {
         showStandardStreams = true
     }
     
-    outputs.upToDateWhen { false } // Forces execution every time
+    outputs.upToDateWhen { false }
 }
 
-// Task for your TestNG grouped tests
-tasks.register("specificTestNGTest", Test) {
+// 3. Dedicated Task for TestNG Grouped Tests
+tasks.register("runSpecificTestNG", Test) {
     group = 'verification'
-    description = 'Runs specific TestNG tests grouped with Specific_Test'
+    description = 'Runs TestNG tests grouped with specificTestNGTest'
 
     useTestNG() {
-        includeGroups "specificTestNGTest"
+        includeGroups "specificTestNGTest" // Match your TestNG @Test(groups = "...") exactly
     }
 
     testLogging {
@@ -88,5 +85,5 @@ tasks.register("specificTestNGTest", Test) {
     
     outputs.upToDateWhen { false }
 }
-    
+
     

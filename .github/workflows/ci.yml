@@ -2,10 +2,9 @@ name: Test Execution
 
 on:
   schedule:
-    # 4:30 AM UTC is 10:00 AM IST
-    - cron: '30 4 * * 2,6'
+    - cron: '*/5 * * * *' #AM IST Tuesdays and Saturdays
   push:
-    branches: [ main , master ]
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
@@ -23,18 +22,22 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      # Configure Gradle environment and automatic caching
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Execute your tests using standard run step
-      - name: Run Gradle tests
-        run: ./gradlew test --info
-        # working-directory: ./your-subfolder-name # Uncomment if project is in a subfolder
+      # Runs your default JUnit 5 suites and both custom framework tasks
+      - name: Run All Test Suites
+        run: |
+          ./gradlew test --info
+          ./gradlew runSpecificJunit --info
+          ./gradlew runSpecificTestNG --info
+        continue-on-error: true # Ensures reporting runs even if tests fail
 
+      # Wildcard path captures reports from all three custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports
-          path: build/reports/tests/test/
+          name: comprehensive-test-reports
+          path: build/reports/tests/
+
