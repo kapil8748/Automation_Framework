@@ -1,7 +1,7 @@
 package testcases;
 
 import base.BaseTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import utils.JsonLoader;
 
 import java.util.List;
@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test class for validating JsonLoader functionality
  */
+@Tag("Json_Loader_Test")
 public class JsonLoaderTest extends BaseTest {
 
     @Test

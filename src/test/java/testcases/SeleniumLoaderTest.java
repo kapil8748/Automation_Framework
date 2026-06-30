@@ -2,7 +2,7 @@ package testcases;
 
 import base.SeleniumBase;
 import base.BaseTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test class for validating SeleniumBase driver initialization
  */
+@Tag("Selenium_Loader_Test")
 public class SeleniumLoaderTest extends BaseTest {
 
     @Test

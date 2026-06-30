@@ -1,7 +1,7 @@
 package testcases;
 import base.SeleniumBase;
 import base.BaseTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -16,6 +16,9 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
+
+@Tag("Test_First_Test")
 public class TestFirstTest extends BaseTest {
     
     

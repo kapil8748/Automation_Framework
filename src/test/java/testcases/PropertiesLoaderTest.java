@@ -1,7 +1,7 @@
 package testcases;
 
 import base.BaseTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import utils.PropertiesLoader;
 
 import java.util.Map;
@@ -12,6 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test class for validating PropertiesLoader functionality
  */
+
+@Tag("Properties_Loader_Test")
 public class PropertiesLoaderTest extends BaseTest {
 
     @Test

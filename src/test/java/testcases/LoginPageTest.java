@@ -2,7 +2,7 @@ package testcases;
 import pages.LoginPage;
 import base.SeleniumBase;
 import base.BaseTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.WebDriver;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.*;
 
-
+@Tag("Login_Page_Test")
 public class LoginPageTest extends BaseTest{
 
     @Test

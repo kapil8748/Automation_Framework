@@ -1,7 +1,7 @@
 package base;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 import org.openqa.selenium.WebDriver;
 
 /**
@@ -11,17 +11,17 @@ import org.openqa.selenium.WebDriver;
  */
 public class BaseTest {
 
-    protected WebDriver driver;
+    public static WebDriver driver;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         // Initialize driver using SeleniumBase
         driver = SeleniumBase.initializeDriver("chrome", false);
         System.out.println("BaseTest: Driver initialized.");
     }
 
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         // Close driver using SeleniumBase
         SeleniumBase.closeDriver();
         System.out.println("BaseTest: Driver closed.");

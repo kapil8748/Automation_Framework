@@ -5,6 +5,12 @@ import base.BaseTest;
 import base.SeleniumBase;
 import utils.PropertiesLoader;
 
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 // Java Core Imports
 import java.util.Map;
 import java.util.Properties;
@@ -20,7 +26,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.util.List;
 import java.time.Duration;
 
-
+@Tag("Rahul_Shetty_Practice_Page_Test")
 public class RahulShettyPracticePageTest extends BaseTest{
         
         Map<String, Properties> myProps = PropertiesLoader.loadAll();
