@@ -2,7 +2,7 @@ name: Test Execution
 
 on:
   schedule:
-    # 4:30 AM UTC is 10:00 AM IST (Note: Your comment said 4:00 AM but cron says 30 4)
+    # 4:30 AM UTC is 10:00 AM IST
     - cron: '30 4 * * 2,6'
   push:
     branches: [ main , master ]
@@ -23,12 +23,14 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      # Replacing manual chmod/run with official Gradle Action
-      - name: Setup and Run Gradle
+      # Configure Gradle environment and automatic caching
+      - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          arguments: test --info
-          # build-root-directory: ./your-subfolder-name # Uncomment if project is in a subfolder
+
+      # Execute your tests using standard run step
+      - name: Run Gradle tests
+        run: ./gradlew test --info
+        # working-directory: ./your-subfolder-name # Uncomment if project is in a subfolder
 
       - name: Upload test reports
         if: always()
