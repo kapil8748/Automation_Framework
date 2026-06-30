@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: data-test1
-          path: build/test-results/
+          path: build/test-results/test/
           if-no-files-found: ignore
 
   test2:
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: data-test2
-          path: build/test-results/
+          path: build/test-results/runSpecificJunit/
           if-no-files-found: ignore
 
   test3:
@@ -72,13 +72,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: data-test3
-          path: build/test-results/
+          path: build/test-results/runSpecificTestNG/
           if-no-files-found: ignore
 
   master-report:
     runs-on: ubuntu-latest
-    needs: [test1, test2, test3] # Waits for all test jobs to finish
-    if: always() # Runs even if some tests failed
+    needs: [test1, test2, test3]
+    if: always()
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -92,10 +92,24 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         
-      - name: Download All Test Data
+      # Download each dataset straight into its matching Gradle directory
+      - name: Download Data 1
         uses: actions/download-artifact@v4
         with:
-          path: build/all-test-results # Downloads data-test1, data-test2, etc. here
+          name: data-test1
+          path: build/test-results/test
+          
+      - name: Download Data 2
+        uses: actions/download-artifact@v4
+        with:
+          name: data-test2
+          path: build/test-results/runSpecificJunit
+          
+      - name: Download Data 3
+        uses: actions/download-artifact@v4
+        with:
+          name: data-test3
+          path: build/test-results/runSpecificTestNG
           
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
