@@ -90,7 +90,7 @@ tasks.register("runSpecificTestNG", Test) {
     
 }
 
-// 4. Master Task to combine all test data into one report
+// 4. Master Task to combine all test data into one report (Fixed for nested CI folders)
 tasks.register("combinedReport", TestReport) {
     group = 'verification'
     description = 'Combines test results from all parallel CI jobs into a single HTML report'
@@ -98,6 +98,17 @@ tasks.register("combinedReport", TestReport) {
     // Where the final single report will be saved
     destinationDirectory = file("build/reports/combined-report")
     
-    // Tells Gradle to scan this folder for all test data downloaded from GitHub Actions
-    testResults.from(file("build/all-test-results"))
+    // Dynamically searches all subfolders for Gradle's binary test execution data
+    testResults.from({
+        def dataDir = file("build/all-test-results")
+        def binaryDirs = []
+        if (dataDir.exists()) {
+            dataDir.eachFileRecurse { file ->
+                if (file.name == 'results.bin') {
+                    binaryDirs << file.parentFile
+                }
+            }
+        }
+        return binaryDirs
+    })
 }
