@@ -1,44 +1,3 @@
-plugins {
-    id 'java'
-}
-
-group = 'org.example'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    // ── Core utilities ────────────────────────────────────────────────────────
-    implementation 'org.apache.commons:commons-text:1.12.0'
-
-    // ── Selenium ──────────────────────────────────────────────────────────────
-    implementation 'org.seleniumhq.selenium:selenium-java:4.44.0'
-
-    // ── REST Assured ──────────────────────────────────────────────────────────
-    implementation 'io.rest-assured:rest-assured:5.5.0'
-
-    // ── JSON parsing ──────────────────────────────────────────────────────────
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
-
-    // ── Logging ───────────────────────────────────────────────────────────────
-    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
-    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
-
-    // ── Reporting ─────────────────────────────────────────────────────────────
-    implementation 'com.aventstack:extentreports:5.1.1'
-
-    // ── JUnit 5 (Jupiter) ─────────────────────────────────────────────────────
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
-    testRuntimeOnly  'org.junit.jupiter:junit-jupiter-engine:5.10.2'
-    testRuntimeOnly  'org.junit.platform:junit-platform-launcher'
-
-    // ── TestNG ────────────────────────────────────────────────────────────────
-    testImplementation 'org.testng:testng:7.10.2'
-}
-
 // 1. Default Task Configuration (Defaults to running ALL JUnit 5 tests)
 test {
     useJUnitPlatform {
@@ -58,7 +17,7 @@ tasks.register("runSpecificJunit", Test) {
     description = 'Runs JUnit 5 tests tagged with specificJunitTest'
 
     useJUnitPlatform {
-        includeTags "specificJunitTest" // Match your Java source code annotation exactly
+        includeTags "specificJunitTest" 
     }
     
     testLogging {
@@ -75,7 +34,7 @@ tasks.register("runSpecificTestNG", Test) {
     description = 'Runs TestNG tests grouped with specificTestNGTest'
 
     useTestNG() {
-        includeGroups "specificTestNGTest" // Match your TestNG @Test(groups = "...") exactly
+        includeGroups "specificTestNGTest" 
     }
 
     testLogging {
@@ -86,17 +45,13 @@ tasks.register("runSpecificTestNG", Test) {
     outputs.upToDateWhen { false }
 }
 
-// 4. New Task: SpecificTestNGTest (Configured for TestNG)
+// 4. Cleaned Task: SpecificTestNGTest (Now targets TestNG Groups)
 tasks.register("SpecificTestNGTest", Test) {
     group = 'verification'
-    description = 'Runs specific TestNG suite or groups requested by CI'
+    description = 'Runs specific TestNG groups requested by CI'
 
     useTestNG() {
-        // Option A: Point to a specific TestNG XML file in your project
-        suites "src/test/resources/SpecificTestNGTest.xml" 
-        
-        // Option B: Or target a TestNG group by uncommenting the line below:
-        // includeGroups "SpecificTestNGTest" 
+        includeGroups "SpecificTestNGTest" // Filters by @Test(groups = "SpecificTestNGTest")
     }
 
     testLogging {
@@ -107,17 +62,13 @@ tasks.register("SpecificTestNGTest", Test) {
     outputs.upToDateWhen { false }
 }
 
-// 5. New Task: SpecificJuintTest (Configured for TestNG as requested by 'testng : SpecificJuintTest')
-tasks.register("SpecificJuintTest", Test) {
+// 5. Cleaned Task: SpecificJUnitTest (Fixed typo & set to use JUnit 5 Platform)
+tasks.register("SpecificJUnitTest", Test) {
     group = 'verification'
-    description = 'Runs specific JUnit test framework runner via TestNG'
+    description = 'Runs specific JUnit 5 tests tagged with SpecificJUnitTest'
 
-    useTestNG() {
-        // Option A: Point to your second specific TestNG XML file
-        suites "src/test/resources/SpecificJuintTest.xml"
-        
-        // Option B: Or target a specific group by uncommenting the line below:
-        // includeGroups "SpecificJuintTest"
+    useJUnitPlatform() {
+        includeTags "SpecificJUnitTest" // Filters by @Tag("SpecificJUnitTest")
     }
 
     testLogging {
