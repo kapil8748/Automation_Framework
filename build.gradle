@@ -87,4 +87,17 @@ tasks.register("runSpecificTestNG", Test) {
     }
     
     outputs.upToDateWhen { false }
+    
+}
+
+// 4. Master Task to combine all test data into one report
+tasks.register("combinedReport", TestReport) {
+    group = 'verification'
+    description = 'Combines test results from all parallel CI jobs into a single HTML report'
+    
+    // Where the final single report will be saved
+    destinationDirectory = file("build/reports/combined-report")
+    
+    // Tells Gradle to scan this folder for all test data downloaded from GitHub Actions
+    testResults.from(file("build/all-test-results"))
 }
