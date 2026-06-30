@@ -2,7 +2,6 @@ name: Test Execution
 
 on:
   schedule:
-    # Runs every 5 minutes
     - cron: '*/5 * * * *'
   push:
     branches: [ main, master ]
@@ -15,132 +14,102 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
       - name: Run All Test Suites
-        run: |
-          ./gradlew test --info
-        continue-on-error: true
-
+        run: ./gradlew test --info
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test1-reports # <-- Changed to be unique
-          path: build/reports/tests/
+          name: test1-reports
+          path: build/reports/
 
   test2:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
       - name: Run All Test Suites
-        run: |
-          ./gradlew runSpecificJunit --info
-        continue-on-error: true
-
+        run: ./gradlew runSpecificJunit --info
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test2-reports # <-- Changed to be unique
-          path: build/reports/tests/
+          name: test2-reports
+          path: build/reports/
 
   test3:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
       - name: Run All Test Suites
-        run: |
-          ./gradlew runSpecificTestNG --info
-        continue-on-error: true
-
+        run: ./gradlew runSpecificTestNG --info
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test3-reports # <-- Changed to be unique
-          path: build/reports/tests/
+          name: test3-reports
+          path: build/reports/
 
   test4:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
       - name: Run All Test Suites
-        run: |
-          ./gradlew SpecificTestNGTest --info
-        continue-on-error: true
-
+        run: ./gradlew SpecificTestNGTest --info
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test4-reports # <-- Changed to be unique
-          path: build/reports/tests/
+          name: test4-reports
+          path: build/reports/
 
   test5:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-
       - name: Run All Test Suites
-        run: |
-          ./gradlew SpecificJuintTest --info
-        continue-on-error: true
-
+        run: ./gradlew SpecificJUnitTest --info # <-- Updated spelling to match fixed Gradle task
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test5-reports # <-- Changed to be unique
-          path: build/reports/tests/
+          name: test5-reports
+          path: build/reports/
