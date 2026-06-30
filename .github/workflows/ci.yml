@@ -10,11 +10,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-
-
   test1:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,27 +25,20 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
           ./gradlew test --info
-          
-        continue-on-error: true # Ensures reporting runs even if tests fail
+        continue-on-error: true
 
-      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-test-reports
-
-
+          name: test1-reports # <-- Changed to be unique
           path: build/reports/tests/
-
 
   test2:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -62,27 +52,20 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
-          
           ./gradlew runSpecificJunit --info
-          
-        continue-on-error: true # Ensures reporting runs even if tests fail
+        continue-on-error: true
 
-      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-test-reports
-
-
+          name: test2-reports # <-- Changed to be unique
           path: build/reports/tests/
 
   test3:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -96,29 +79,20 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
-          
           ./gradlew runSpecificTestNG --info
-          
-        continue-on-error: true # Ensures reporting runs even if tests fail
+        continue-on-error: true
 
-      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-test-reports
-
-
+          name: test3-reports # <-- Changed to be unique
           path: build/reports/tests/
-
-
 
   test4:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -132,25 +106,20 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
           ./gradlew SpecificTestNGTest --info
-        continue-on-error: true # Ensures reporting runs even if tests fail
+        continue-on-error: true
 
-      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-test-reports
-
-
+          name: test4-reports # <-- Changed to be unique
           path: build/reports/tests/
 
   test5:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -164,19 +133,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # Runs your default suites, previous custom tasks, and your two new TestNG tasks
       - name: Run All Test Suites
         run: |
           ./gradlew SpecificJuintTest --info
-        continue-on-error: true # Ensures reporting runs even if tests fail
+        continue-on-error: true
 
-      # Wildcard path captures reports from all custom tasks
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comprehensive-test-reports
-
-
+          name: test5-reports # <-- Changed to be unique
           path: build/reports/tests/
-
