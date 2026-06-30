@@ -4,7 +4,7 @@ on:
   schedule:
     # 4:00 AM UTC is 9:30 AM IST
     # 2 = Tuesday, 6 = Saturday
-    - cron: '0 4 * * 2,6'
+    - cron: '30 4 * * 2,6'
 
   push:
     branches: [ main , master]

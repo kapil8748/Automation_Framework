@@ -57,14 +57,5 @@ public class ExtentReportTest {
         assertTrue(true, "This should pass");
     }
 
-    @Test
-    public void sampleFailTest() {
-        test.info("Starting sampleFailTest");
-        try {
-            fail("Intentional failure for demonstration");
-        } catch (AssertionError e) {
-            test.fail(e.getMessage());
-            throw e; 
-        }
-    }
+    
 }
