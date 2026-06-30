@@ -90,17 +90,30 @@ tasks.register("runSpecificTestNG", Test) {
     
 }
 
-// 4. Master Task to combine all test data into one report
+// 4. Master Task to combine all test data into one report (With Lazy Evaluation Guardrails)
 tasks.register("combinedReport", TestReport) {
     group = 'verification'
     description = 'Combines test results from all parallel CI jobs into a single HTML report'
     
     destinationDirectory = file("build/reports/combined-report")
     
-    // Direct link to the exact folders downloaded by CI
-    testResults.from(
-        file("build/test-results/test"),
-        file("build/test-results/runSpecificJunit"),
-        file("build/test-results/runSpecificTestNG")
-    )
+    // This closure runs at EXECUTION time, after GitHub downloads the files!
+    testResults.from({
+        def targetDirs = [
+            file("build/test-results/test"),
+            file("build/test-results/runSpecificJunit"),
+            file("build/test-results/runSpecificTestNG")
+        ]
+        return targetDirs.findAll { it.exists() }
+    })
+
+    // Prevents Gradle from crashing if no test directories exist at all
+    onlyIf {
+        def targetDirs = [
+            file("build/test-results/test"),
+            file("build/test-results/runSpecificJunit"),
+            file("build/test-results/runSpecificTestNG")
+        ]
+        return targetDirs.any { it.exists() }
+    }
 }
