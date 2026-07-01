@@ -27,8 +27,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: data-test1
-          path: build/test-results/test # REMOVED trailing slash to upload the folder container
+          name: test                  # Match your build.gradle folder name
+          path: build/test-results/test/
 
   test2:
     runs-on: ubuntu-latest
@@ -48,8 +48,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: data-test2
-          path: build/test-results/runSpecificJunitTest # REMOVED trailing slash
+          name: runSpecificJunitTest  # Match your build.gradle folder name
+          path: build/test-results/runSpecificJunitTest/
 
   test3:
     runs-on: ubuntu-latest
@@ -69,8 +69,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: data-test3
-          path: build/test-results/runSpecificTestNGTest # REMOVED trailing slash
+          name: runSpecificTestNGTest # Match your build.gradle folder name
+          path: build/test-results/runSpecificTestNGTest/
 
   master-report:
     runs-on: ubuntu-latest
@@ -89,27 +89,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         
-      # Download into the root parent path "build/test-results"
-      # Because the artifacts contain the folder themselves, they extract cleanly into separate folders!
-      - name: Download Data 1
+      # MAGIC HAPPENS HERE: Downloads ALL artifacts.
+      # It automatically creates target folders:
+      # build/test-results/test
+      # build/test-results/runSpecificJunitTest
+      # build/test-results/runSpecificTestNGTest
+      - name: Download All Test Data
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
-          name: data-test1
-          path: build/test-results
-          
-      - name: Download Data 2
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: data-test2
-          path: build/test-results
-          
-      - name: Download Data 3
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: data-test3
           path: build/test-results
           
       - name: Compile Unified HTML Report
