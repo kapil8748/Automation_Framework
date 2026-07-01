@@ -72,32 +72,29 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
-        
-      # Download each explicitly to its own named folder to prevent flattening
+
+      # Download into isolated folders
       - name: Download Data 1
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: artifact-test1
-          path: build/test-results/test
-          
+          path: build/artifacts/test1
+
       - name: Download Data 2
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: artifact-test2
-          path: build/test-results/runSpecificJunitTest
-          
+          path: build/artifacts/test2
+
       - name: Download Data 3
         uses: actions/download-artifact@v4
-        continue-on-error: true
         with:
           name: artifact-test3
-          path: build/test-results/runSpecificTestNGTest
-          
+          path: build/artifacts/test3
+
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
-        
+
       - name: Upload Single Consolidated Report
         uses: actions/upload-artifact@v4
         with:
