@@ -10,106 +10,68 @@ repositories {
 }
 
 dependencies {
-    // ── Core utilities ────────────────────────────────────────────────────────
     implementation 'org.apache.commons:commons-text:1.12.0'
-
-    // ── Selenium ──────────────────────────────────────────────────────────────
     implementation 'org.seleniumhq.selenium:selenium-java:4.44.0'
-
-    // ── REST Assured ──────────────────────────────────────────────────────────
     implementation 'io.rest-assured:rest-assured:5.5.0'
-
-    // ── JSON parsing ──────────────────────────────────────────────────────────
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.2'
-
-    // ── Logging ───────────────────────────────────────────────────────────────
     implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
     implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
-
-    // ── Reporting ─────────────────────────────────────────────────────────────
     implementation 'com.aventstack:extentreports:5.1.1'
 
-    // ── JUnit 5 (Jupiter) ─────────────────────────────────────────────────────
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.2'
     testRuntimeOnly  'org.junit.jupiter:junit-jupiter-engine:5.10.2'
     testRuntimeOnly  'org.junit.platform:junit-platform-launcher'
-
-    // ── TestNG ────────────────────────────────────────────────────────────────
     testImplementation 'org.testng:testng:7.10.2'
 }
 
-// Case 1: Default Task Configuration (Runs ALL JUnit 5 tests)
+// Case 1: Default JUnit 5 tests
 test {
     ignoreFailures = true
-    useJUnitPlatform {
-        String tags = System.getProperty('tags')
-        if (tags) includeTags tags
-    }
-    // Explicitly set paths
+    useJUnitPlatform()
     reports.html.outputLocation = file("${buildDir}/reports/tests/test")
     reports.junitXml.outputLocation = file("${buildDir}/test-results/test")
 }
 
-// Case 2: Dedicated Task for JUnit 5 Tagged Tests
+// Case 2: JUnit tagged tests
 tasks.register("runSpecificJunitTest", Test) {
-    group = 'verification'
-    description = 'Runs JUnit 5 tests tagged with specificJunitTest'
     ignoreFailures = true
-
-    useJUnitPlatform {
-        includeTags "specificJunitTest" 
-    }
-    
-    // FORCE isolated output paths
+    useJUnitPlatform { includeTags "specificJunitTest" }
     binaryResultsDirectory = file("${buildDir}/test-results/runSpecificJunitTest/binary")
     reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificJunitTest")
     reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificJunitTest")
-    
     outputs.upToDateWhen { false }
 }
 
-// Case 3: Dedicated Task for TestNG Grouped Tests
+// Case 3: TestNG grouped tests
 tasks.register("runSpecificTestNGTest", Test) {
-    group = 'verification'
-    description = 'Runs TestNG tests grouped with specificTestNGTest'
     ignoreFailures = true
-
-    useTestNG() {
-        includeGroups "specificTestNGTest" 
-    }
-
-    // FORCE isolated output paths
+    useTestNG { includeGroups "specificTestNGTest" }
     binaryResultsDirectory = file("${buildDir}/test-results/runSpecificTestNGTest/binary")
     reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificTestNGTest")
     reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificTestNGTest")
-    
     outputs.upToDateWhen { false }
 }
 
-// 4. Master Task to combine all test data
+// Combined report task
 tasks.register("combinedReport", TestReport) {
-    group = 'verification'
-    description = 'Combines test results from all parallel CI jobs into a single HTML report'
-    
     destinationDirectory = file("build/reports/combined-report")
-    
-    // We point to the binary folders compiled by Gradle
+
     testResults.from({
         def targetDirs = [
-            file("build/test-results/test"),
-            file("build/test-results/runSpecificJunitTest"),
-            file("build/test-results/runSpecificTestNGTest")
+            file("build/artifacts/test1"),
+            file("build/artifacts/test2"),
+            file("build/artifacts/test3")
         ]
-        return targetDirs.findAll { it.exists() }
+        targetDirs.findAll { it.exists() }
     })
 
     onlyIf {
         def targetDirs = [
-            file("build/test-results/test"),
-            file("build/test-results/runSpecificJunitTest"),
-            file("build/test-results/runSpecificTestNGTest")
+            file("build/artifacts/test1"),
+            file("build/artifacts/test2"),
+            file("build/artifacts/test3")
         ]
-        return targetDirs.any { it.exists() }
+        targetDirs.any { it.exists() }
     }
 }
