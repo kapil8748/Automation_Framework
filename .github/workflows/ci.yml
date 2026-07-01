@@ -1,8 +1,6 @@
 name: Test Execution
 
 on:
-  schedule:
-    - cron: '30 9 * * 1,2,5,6'
   push:
     branches: [ main, master ]
   pull_request:
@@ -12,64 +10,55 @@ jobs:
   test1:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
       - name: Run Case 1
         run: ./gradlew test --info
       - name: Upload Raw Data 1
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test                  # Match your build.gradle folder name
+          name: artifact-test1
           path: build/test-results/test/
 
   test2:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
       - name: Run Case 2
         run: ./gradlew runSpecificJunitTest --info
       - name: Upload Raw Data 2
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: runSpecificJunitTest  # Match your build.gradle folder name
+          name: artifact-test2
           path: build/test-results/runSpecificJunitTest/
 
   test3:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
       - name: Run Case 3
         run: ./gradlew runSpecificTestNGTest --info
       - name: Upload Raw Data 3
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: runSpecificTestNGTest # Match your build.gradle folder name
+          name: artifact-test3
           path: build/test-results/runSpecificTestNGTest/
 
   master-report:
@@ -77,27 +66,34 @@ jobs:
     needs: [test1, test2, test3]
     if: always()
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-          
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
         
-      # MAGIC HAPPENS HERE: Downloads ALL artifacts.
-      # It automatically creates target folders:
-      # build/test-results/test
-      # build/test-results/runSpecificJunitTest
-      # build/test-results/runSpecificTestNGTest
-      - name: Download All Test Data
+      # Download each explicitly to its own named folder to prevent flattening
+      - name: Download Data 1
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          path: build/test-results
+          name: artifact-test1
+          path: build/test-results/test
+          
+      - name: Download Data 2
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: artifact-test2
+          path: build/test-results/runSpecificJunitTest
+          
+      - name: Download Data 3
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: artifact-test3
+          path: build/test-results/runSpecificTestNGTest
           
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info

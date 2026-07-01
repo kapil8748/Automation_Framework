@@ -46,14 +46,12 @@ test {
         String tags = System.getProperty('tags')
         if (tags) includeTags tags
     }
-
-    testLogging {
-        events 'passed', 'failed', 'skipped'
-        showStandardStreams = true
-    }
+    // Explicitly set paths
+    reports.html.outputLocation = file("${buildDir}/reports/tests/test")
+    reports.junitXml.outputLocation = file("${buildDir}/test-results/test")
 }
 
-// Case 2: Renamed to match CI: runSpecificJunitTest
+// Case 2: Dedicated Task for JUnit 5 Tagged Tests
 tasks.register("runSpecificJunitTest", Test) {
     group = 'verification'
     description = 'Runs JUnit 5 tests tagged with specificJunitTest'
@@ -63,15 +61,15 @@ tasks.register("runSpecificJunitTest", Test) {
         includeTags "specificJunitTest" 
     }
     
-    testLogging {
-        events 'passed', 'failed', 'skipped'
-        showStandardStreams = true
-    }
+    // FORCE isolated output paths
+    binaryResultsDirectory = file("${buildDir}/test-results/runSpecificJunitTest/binary")
+    reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificJunitTest")
+    reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificJunitTest")
     
     outputs.upToDateWhen { false }
 }
 
-// Case 3: Renamed to match CI: runSpecificTestNGTest
+// Case 3: Dedicated Task for TestNG Grouped Tests
 tasks.register("runSpecificTestNGTest", Test) {
     group = 'verification'
     description = 'Runs TestNG tests grouped with specificTestNGTest'
@@ -81,20 +79,22 @@ tasks.register("runSpecificTestNGTest", Test) {
         includeGroups "specificTestNGTest" 
     }
 
-    testLogging {
-        events 'passed', 'failed', 'skipped'
-        showStandardStreams = true
-    }
+    // FORCE isolated output paths
+    binaryResultsDirectory = file("${buildDir}/test-results/runSpecificTestNGTest/binary")
+    reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificTestNGTest")
+    reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificTestNGTest")
     
     outputs.upToDateWhen { false }
 }
 
+// 4. Master Task to combine all test data
 tasks.register("combinedReport", TestReport) {
     group = 'verification'
     description = 'Combines test results from all parallel CI jobs into a single HTML report'
     
     destinationDirectory = file("build/reports/combined-report")
     
+    // We point to the binary folders compiled by Gradle
     testResults.from({
         def targetDirs = [
             file("build/test-results/test"),
