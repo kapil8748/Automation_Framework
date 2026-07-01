@@ -89,14 +89,12 @@ tasks.register("runSpecificTestNGTest", Test) {
     outputs.upToDateWhen { false }
 }
 
-// 4. Master Task aligned with downloaded directory targets
 tasks.register("combinedReport", TestReport) {
     group = 'verification'
     description = 'Combines test results from all parallel CI jobs into a single HTML report'
     
     destinationDirectory = file("build/reports/combined-report")
     
-    // Updated paths match exactly what GitHub Actions downloads into
     testResults.from({
         def targetDirs = [
             file("build/test-results/test"),
