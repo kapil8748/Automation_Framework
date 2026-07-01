@@ -53,8 +53,8 @@ test {
     }
 }
 
-// Case 2: Dedicated Task for JUnit 5 Tagged Tests
-tasks.register("runSpecificJunit", Test) {
+// Case 2: Renamed to match CI: runSpecificJunitTest
+tasks.register("runSpecificJunitTest", Test) {
     group = 'verification'
     description = 'Runs JUnit 5 tests tagged with specificJunitTest'
     ignoreFailures = true
@@ -71,8 +71,8 @@ tasks.register("runSpecificJunit", Test) {
     outputs.upToDateWhen { false }
 }
 
-// Case 3: Dedicated Task for TestNG Grouped Tests
-tasks.register("runSpecificTestNG", Test) {
+// Case 3: Renamed to match CI: runSpecificTestNGTest
+tasks.register("runSpecificTestNGTest", Test) {
     group = 'verification'
     description = 'Runs TestNG tests grouped with specificTestNGTest'
     ignoreFailures = true
@@ -87,32 +87,30 @@ tasks.register("runSpecificTestNG", Test) {
     }
     
     outputs.upToDateWhen { false }
-    
 }
 
-// 4. Master Task to combine all test data into one report (With Lazy Evaluation Guardrails)
+// 4. Master Task aligned with downloaded directory targets
 tasks.register("combinedReport", TestReport) {
     group = 'verification'
     description = 'Combines test results from all parallel CI jobs into a single HTML report'
     
     destinationDirectory = file("build/reports/combined-report")
     
-    // This closure runs at EXECUTION time, after GitHub downloads the files!
+    // Updated paths match exactly what GitHub Actions downloads into
     testResults.from({
         def targetDirs = [
             file("build/test-results/test"),
-            file("build/test-results/runSpecificJunit"),
-            file("build/test-results/runSpecificTestNG")
+            file("build/test-results/runSpecificJunitTest"),
+            file("build/test-results/runSpecificTestNGTest")
         ]
         return targetDirs.findAll { it.exists() }
     })
 
-    // Prevents Gradle from crashing if no test directories exist at all
     onlyIf {
         def targetDirs = [
             file("build/test-results/test"),
-            file("build/test-results/runSpecificJunit"),
-            file("build/test-results/runSpecificTestNG")
+            file("build/test-results/runSpecificJunitTest"),
+            file("build/test-results/runSpecificTestNGTest")
         ]
         return targetDirs.any { it.exists() }
     }
