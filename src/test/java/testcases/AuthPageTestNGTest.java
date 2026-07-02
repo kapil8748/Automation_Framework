@@ -1,33 +1,31 @@
 package testcases;
 
-import org.testng.annotations.*;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 import pages.AuthPage;
 
-
 public class AuthPageTestNGTest {
     private AuthPage page;
-@Test(groups = "Auth_Page_TestNG_Test")
+
     @BeforeMethod
     public void init() {
         page = new AuthPage();
     }
 
-    @Test(groups="specificTestNGTest")
+    // You can assign multiple groups to a single test method easily
+    @Test(groups = {"Auth_Page_TestNG_Test", "specificTestNGTest"})
     public void testValidLogin() {
-        // TestNG signature structure: assertTrue(actual, message)
         assertTrue(page.login("Admin", "Secret123"), "Valid login failed!");
     }
 
-    @Test
+    @Test(groups = "Auth_Page_TestNG_Test")
     public void testInvalidLogin() {
-        assertFalse(page.login("user", "wrongpass"));
+        assertFalse(page.login("user", "wrongpass"), "Invalid login allowed access!");
     }
 
-    @Test(expectedExceptions = IllegalArgumentException.class)
+    @Test(groups = "Auth_Page_TestNG_Test", expectedExceptions = IllegalArgumentException.class)
     public void testNullCredentialsThrowsException() {
-        // TestNG handles expected failures directly via annotations
         page.login(null, "pass");
     }
 }
