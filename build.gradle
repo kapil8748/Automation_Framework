@@ -36,6 +36,8 @@ test {
 // Case 2: JUnit tagged tests
 tasks.register("runSpecificJunitTest", Test) {
     ignoreFailures = true
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
     useJUnitPlatform { includeTags "specificJunitTest" }
     binaryResultsDirectory = layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary")
     reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/runSpecificJunitTest")
@@ -46,6 +48,8 @@ tasks.register("runSpecificJunitTest", Test) {
 // Case 3: TestNG grouped tests
 tasks.register("runSpecificTestNGTest", Test) {
     ignoreFailures = true
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
     useTestNG { includeGroups "specificTestNGTest" }
     binaryResultsDirectory = layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
     reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/runSpecificTestNGTest")

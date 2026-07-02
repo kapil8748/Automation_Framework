@@ -8,12 +8,12 @@ import pages.AuthPage;
 public class AuthPageTestNGTest {
     private AuthPage page;
 
-    @BeforeMethod
+    // FIX: Tells TestNG to execute this setup regardless of what group is running
+    @BeforeMethod(alwaysRun = true) 
     public void init() {
         page = new AuthPage();
     }
 
-    // You can assign multiple groups to a single test method easily
     @Test(groups = {"Auth_Page_TestNG_Test", "specificTestNGTest"})
     public void testValidLogin() {
         assertTrue(page.login("Admin", "Secret123"), "Valid login failed!");
