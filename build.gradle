@@ -29,17 +29,17 @@ dependencies {
 test {
     ignoreFailures = true
     useJUnitPlatform()
-    reports.html.outputLocation = file("${buildDir}/reports/tests/test")
-    reports.junitXml.outputLocation = file("${buildDir}/test-results/test")
+    reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/test")
+    reports.junitXml.outputLocation = layout.buildDirectory.dir("test-results/test")
 }
 
 // Case 2: JUnit tagged tests
 tasks.register("runSpecificJunitTest", Test) {
     ignoreFailures = true
     useJUnitPlatform { includeTags "specificJunitTest" }
-    binaryResultsDirectory = file("${buildDir}/test-results/runSpecificJunitTest/binary")
-    reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificJunitTest")
-    reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificJunitTest")
+    binaryResultsDirectory = layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary")
+    reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/runSpecificJunitTest")
+    reports.junitXml.outputLocation = layout.buildDirectory.dir("test-results/runSpecificJunitTest")
     outputs.upToDateWhen { false }
 }
 
@@ -47,31 +47,29 @@ tasks.register("runSpecificJunitTest", Test) {
 tasks.register("runSpecificTestNGTest", Test) {
     ignoreFailures = true
     useTestNG { includeGroups "specificTestNGTest" }
-    binaryResultsDirectory = file("${buildDir}/test-results/runSpecificTestNGTest/binary")
-    reports.html.outputLocation = file("${buildDir}/reports/tests/runSpecificTestNGTest")
-    reports.junitXml.outputLocation = file("${buildDir}/test-results/runSpecificTestNGTest")
+    binaryResultsDirectory = layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
+    reports.html.outputLocation = layout.buildDirectory.dir("reports/tests/runSpecificTestNGTest")
+    reports.junitXml.outputLocation = layout.buildDirectory.dir("test-results/runSpecificTestNGTest")
     outputs.upToDateWhen { false }
 }
 
-// Combined report task
+// Combined report task - Fixed for Configuration Cache
 tasks.register("combinedReport", TestReport) {
-    destinationDirectory = file("build/reports/combined-report")
+    destinationDirectory = layout.buildDirectory.dir("reports/combined-report")
 
-    testResults.from({
-        def targetDirs = [
-            file("build/artifacts/test1"),
-            file("build/artifacts/test2"),
-            file("build/artifacts/test3")
-        ]
-        targetDirs.findAll { it.exists() }
-    })
+    // Cleaned up using modern, safe Providers that point directly to output directories
+    testResults.from(
+        layout.buildDirectory.dir("test-results/test/binary"),
+        layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary"),
+        layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
+    )
 
     onlyIf {
-    def targetDirs = [
-        project.layout.projectDirectory.dir("build/artifacts/test1").asFile,
-        project.layout.projectDirectory.dir("build/artifacts/test2").asFile,
-        project.layout.projectDirectory.dir("build/artifacts/test3").asFile
-    ]
-    targetDirs.any { it.exists() }
-}
+        def targetDirs = [
+            layout.buildDirectory.dir("test-results/test/binary").get().asFile,
+            layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary").get().asFile,
+            layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary").get().asFile
+        ]
+        targetDirs.any { it.exists() }
+    }
 }
