@@ -67,11 +67,11 @@ tasks.register("combinedReport", TestReport) {
     })
 
     onlyIf {
-        def targetDirs = [
-            file("build/artifacts/test1"),
-            file("build/artifacts/test2"),
-            file("build/artifacts/test3")
-        ]
-        targetDirs.any { it.exists() }
-    }
+    def targetDirs = [
+        project.layout.projectDirectory.dir("build/artifacts/test1").asFile,
+        project.layout.projectDirectory.dir("build/artifacts/test2").asFile,
+        project.layout.projectDirectory.dir("build/artifacts/test3").asFile
+    ]
+    targetDirs.any { it.exists() }
+}
 }
