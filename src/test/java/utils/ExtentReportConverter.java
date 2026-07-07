@@ -11,6 +11,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,48 +19,71 @@ import java.util.regex.Pattern;
 public class ExtentReportConverter {
 
     public static void main(String[] args) {
-        // Paths matching your GitHub Actions workspace download paths
         String inputArtifactsDir = "build/artifacts";
         String fallbackOutputDir = "build/test-results";
         String reportTargetDestination = "build/reports/extent-dashboard.html";
 
+        // Create the directory if it doesn't exist
+        File reportDir = new File("build/reports");
+        if (!reportDir.exists()) {
+            reportDir.mkdirs();
+        }
+
+        // --- FIXED FOR GITHUB ACTIONS PERMANENT STORAGE ---
+        // Looks for the permanent asset in your project repository resources first
+        try {
+            Path sourceLogo = Paths.get("src/test/resources/download.jpeg");
+            // Fallback to root if you decide to keep it in the root folder of your repository
+            if (!Files.exists(sourceLogo)) {
+                sourceLogo = Paths.get("download.jpeg");
+            }
+            
+            Path targetLogo = Paths.get("build/reports/download.jpeg");
+            
+            if (Files.exists(sourceLogo)) {
+                Files.copy(sourceLogo, targetLogo, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Logo cloned from repository resources into report directory successfully.");
+            } else {
+                System.out.println("Warning: download.jpeg asset missing from repository workspace.");
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to transfer logo asset: " + e.getMessage());
+        }
+
         ExtentReports extent = new ExtentReports();
         ExtentSparkReporter spark = new ExtentSparkReporter(reportTargetDestination);
         
-        // 1. Customize your dashboard branding with SpaceX details
         spark.config().setTheme(Theme.DARK);
         spark.config().setDocumentTitle("SpaceX Automation Framework - Unified Executive Report");
         spark.config().setReportName("SpaceX CI/CD Consolidated Automation Run Results");
 
-        // 2. Corrected CSS targeting the exact inline structure of the Extent framework
         String customCss = 
+            ".nav-logo { " +
+            "   width: 180px !important; " + 
+            "   padding-left: 10px !important; " +
+            "} " +
             ".nav-logo .logo { " +
-            "   background-image: url('download.jpeg') !important; " + // Relative to where extent-dashboard.html is saved
+            "   background-image: url('download.jpeg') !important; " + 
             "   background-size: contain !important; " +
             "   background-repeat: no-repeat !important; " +
-            "   background-position: center !important; " +
-            "   width: 120px !important; " + // Adjusted width to accommodate the wide SpaceX layout
+            "   background-position: left center !important; " +
+            "   width: 160px !important; " + 
+            "   height: 40px !important; " +
+            "   margin-top: 15px !important; " +
             "} " +
-            ".nav-logo { " +
-            "   width: 140px !important; " +
+            ".header.navbar .vheader .nav-left { " +
+            "   padding-left: 30px !important; " +
             "}";
         spark.config().setCss(customCss);
 
         extent.attachReporter(spark);
-
-        System.out.println("Processing raw framework outputs for Extent Conversion...");
-
-        // Parse downloaded CI artifacts first, fall back to native folders if local
         parseDirectory(extent, Paths.get(inputArtifactsDir));
         parseDirectory(extent, Paths.get(fallbackOutputDir));
-
         extent.flush();
-        System.out.println("Extent Dashboard successfully compiled at: " + reportTargetDestination);
     }
 
     private static void parseDirectory(ExtentReports extent, Path basePath) {
         if (!Files.exists(basePath)) return;
-
         try (Stream<Path> paths = Files.walk(basePath)) {
             paths.filter(Files::isRegularFile)
                  .filter(p -> p.toString().endsWith(".xml") && p.getFileName().toString().startsWith("TEST-"))
@@ -79,7 +103,6 @@ public class ExtentReportConverter {
         String content = new String(Files.readAllBytes(xmlFile.toPath()));
         String suiteName = xmlFile.getName().replace("TEST-", "").replace(".xml", "");
         
-        // Robust regex matching BOTH self-closing passing testcases (/>) AND multi-line failure testcases (>(.*?)</testcase>)
         String testcaseRegex = "<testcase\\s+name=\"([^\"]+)\"\\s+classname=\"([^\"]+)\"\\s+time=\"([^\"]+)\"\\s*(?:/>|>(.*?)</testcase>)";
         Matcher matcher = Pattern.compile(testcaseRegex, Pattern.DOTALL).matcher(content);
         
@@ -98,7 +121,6 @@ public class ExtentReportConverter {
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
-                // 3. Dynamic Screenshot Lookup Logic
                 String screenshotFilename = testName + ".png";
                 File screenshotFile = new File("build/reports/screenshots/" + screenshotFilename);
 
