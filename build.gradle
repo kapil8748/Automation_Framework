@@ -57,21 +57,18 @@ tasks.register("runSpecificTestNGTest", Test) {
     outputs.upToDateWhen { false }
 }
 
-// Combined report task - Aligned with your GitHub Parallel Actions setup
 tasks.register("combinedReport", TestReport) {
     destinationDirectory = layout.buildDirectory.dir("reports/combined-report")
 
-    // Point Gradle to look into the downloaded artifacts directories where the binaries are
     testResults.from(
-        layout.buildDirectory.dir("artifacts/test1/test/binary"),
-        layout.buildDirectory.dir("artifacts/test2/runSpecificJunitTest/binary"),
-        layout.buildDirectory.dir("artifacts/test3/runSpecificTestNGTest/binary")
+        layout.buildDirectory.dir("artifacts/test1"),
+        layout.buildDirectory.dir("artifacts/test2"),
+        layout.buildDirectory.dir("artifacts/test3")
     )
 
-    // Pre-calculate inputs for Configuration Cache compliance
-    def path1 = layout.buildDirectory.dir("artifacts/test1/test/binary")
-    def path2 = layout.buildDirectory.dir("artifacts/test2/runSpecificJunitTest/binary")
-    def path3 = layout.buildDirectory.dir("artifacts/test3/runSpecificTestNGTest/binary")
+    def path1 = layout.buildDirectory.dir("artifacts/test1")
+    def path2 = layout.buildDirectory.dir("artifacts/test2")
+    def path3 = layout.buildDirectory.dir("artifacts/test3")
 
     onlyIf {
         def targetDirs = [
@@ -79,7 +76,6 @@ tasks.register("combinedReport", TestReport) {
             path2.get().asFile,
             path3.get().asFile
         ]
-        // This makes sure the task executes if any of the downloaded test runs exist
         targetDirs.any { it.exists() }
     }
 }

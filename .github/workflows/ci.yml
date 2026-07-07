@@ -29,9 +29,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test1
-          path: |
-            build/test-results/test/
-            build/reports/tests/test/
+          # Upload only the binary folder so Gradle can parse it smoothly on download
+          path: build/test-results/test/binary/
           if-no-files-found: ignore
 
   test2:
@@ -56,9 +55,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test2
-          path: |
-            build/test-results/runSpecificJunitTest/
-            build/reports/tests/runSpecificJunitTest/
+          # Upload only the binary folder so Gradle can parse it smoothly on download
+          path: build/test-results/runSpecificJunitTest/binary/
           if-no-files-found: ignore
 
   test3:
@@ -83,9 +81,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test3
-          path: |
-            build/test-results/runSpecificTestNGTest/
-            build/reports/tests/runSpecificTestNGTest/
+          # Upload only the binary folder so Gradle can parse it smoothly on download
+          path: build/test-results/runSpecificTestNGTest/binary/
           if-no-files-found: ignore
 
   master-report:
@@ -106,6 +103,7 @@ jobs:
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
 
+      # Unpacks files directly to build/artifacts/test1/ which will contain the binary files
       - name: Download Data 1
         uses: actions/download-artifact@v4
         continue-on-error: true
