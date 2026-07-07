@@ -31,7 +31,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test1
-          # Captures both XML data AND any screenshots captured by test1
           path: |
             build/test-results/test/
             build/reports/screenshots/
@@ -59,7 +58,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test2
-          # Captures both XML data AND any screenshots captured by test2
           path: |
             build/test-results/runSpecificJunitTest/
             build/reports/screenshots/
@@ -87,13 +85,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test3
-          # Captures both XML data AND any screenshots captured by test3
           path: |
             build/test-results/runSpecificTestNGTest/
             build/reports/screenshots/
           if-no-files-found: ignore
 
-master-report:
+  master-report:
     runs-on: ubuntu-latest
     needs: [test1, test2, test3]
     if: always()
@@ -111,7 +108,6 @@ master-report:
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
 
-      # 1. Download artifacts to a temporary staging area
       - name: Download Data 1
         uses: actions/download-artifact@v4
         continue-on-error: true
@@ -133,20 +129,14 @@ master-report:
           name: artifact-test3
           path: build/tmp/test3
 
-      # 2. Reconstruct the original folder structures before compiling the report
       - name: Restructure Artifacts for Reporting
         run: |
           mkdir -p build/test-results/test/ build/test-results/runSpecificJunitTest/ build/test-results/runSpecificTestNGTest/ build/reports/screenshots/
-          
-          # Move XML test results to their expected locations
           [ -d "build/tmp/test1/test-results/test" ] && cp -r build/tmp/test1/test-results/test/* build/test-results/test/ || true
           [ -d "build/tmp/test2/test-results/runSpecificJunitTest" ] && cp -r build/tmp/test2/test-results/runSpecificJunitTest/* build/test-results/runSpecificJunitTest/ || true
           [ -d "build/tmp/test3/test-results/runSpecificTestNGTest" ] && cp -r build/tmp/test3/test-results/runSpecificTestNGTest/* build/test-results/runSpecificTestNGTest/ || true
-          
-          # Consolidate ALL screenshots into the single, expected screenshots directory
           find build/tmp/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) -exec cp {} build/reports/screenshots/ \;
 
-      # 3. Compile reports now that paths are aligned
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
 
