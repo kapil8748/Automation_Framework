@@ -24,8 +24,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
+      
       - name: Run Case 1
         run: ./gradlew test --info
+
+      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 1
+      - name: Verify Test 1 Screenshots
+        if: always()
+        run: |
+          echo "=== Checking Test 1 Screenshots ==="
+          if [ -d "build/reports/screenshots" ]; then
+            echo "✅ Folder exists! Listing files:"
+            ls -la build/reports/screenshots/
+          else
+            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
+          fi
+
       - name: Upload Raw Data 1
         if: always()
         uses: actions/upload-artifact@v4
@@ -51,8 +65,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
+      
       - name: Run Case 2
         run: ./gradlew runSpecificJunitTest --info
+
+      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 2
+      - name: Verify Test 2 Screenshots
+        if: always()
+        run: |
+          echo "=== Checking Test 2 Screenshots ==="
+          if [ -d "build/reports/screenshots" ]; then
+            echo "✅ Folder exists! Listing files:"
+            ls -la build/reports/screenshots/
+          else
+            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
+          fi
+
       - name: Upload Raw Data 2
         if: always()
         uses: actions/upload-artifact@v4
@@ -78,8 +106,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
+      
       - name: Run Case 3
         run: ./gradlew runSpecificTestNGTest --info
+
+      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 3
+      - name: Verify Test 3 Screenshots
+        if: always()
+        run: |
+          echo "=== Checking Test 3 Screenshots ==="
+          if [ -d "build/reports/screenshots" ]; then
+            echo "✅ Folder exists! Listing files:"
+            ls -la build/reports/screenshots/
+          else
+            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
+          fi
+
       - name: Upload Raw Data 3
         if: always()
         uses: actions/upload-artifact@v4
