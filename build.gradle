@@ -57,29 +57,29 @@ tasks.register("runSpecificTestNGTest", Test) {
     outputs.upToDateWhen { false }
 }
 
-// Combined report task - Fixed for Configuration Cache
+// Combined report task - Aligned with your GitHub Parallel Actions setup
 tasks.register("combinedReport", TestReport) {
     destinationDirectory = layout.buildDirectory.dir("reports/combined-report")
 
-    // 1. Keep this as it is—pointing directly to the binary outputs
+    // Point Gradle to look into the downloaded artifacts directories where the binaries are
     testResults.from(
-        layout.buildDirectory.dir("test-results/test/binary"),
-        layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary"),
-        layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
+        layout.buildDirectory.dir("artifacts/test1/test/binary"),
+        layout.buildDirectory.dir("artifacts/test2/runSpecificJunitTest/binary"),
+        layout.buildDirectory.dir("artifacts/test3/runSpecificTestNGTest/binary")
     )
 
-    // 2. CRITICAL FIX: Extract the directory providers OUTSIDE the execution closure
-    def testBinDir = layout.buildDirectory.dir("test-results/test/binary")
-    def junitBinDir = layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary")
-    def testngBinDir = layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
+    // Pre-calculate inputs for Configuration Cache compliance
+    def path1 = layout.buildDirectory.dir("artifacts/test1/test/binary")
+    def path2 = layout.buildDirectory.dir("artifacts/test2/runSpecificJunitTest/binary")
+    def path3 = layout.buildDirectory.dir("artifacts/test3/runSpecificTestNGTest/binary")
 
-    // 3. Now the execution block only references the localized variables, NOT the 'layout' object
     onlyIf {
         def targetDirs = [
-            testBinDir.get().asFile,
-            junitBinDir.get().asFile,
-            testngBinDir.get().asFile
+            path1.get().asFile,
+            path2.get().asFile,
+            path3.get().asFile
         ]
+        // This makes sure the task executes if any of the downloaded test runs exist
         targetDirs.any { it.exists() }
     }
 }
