@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [ main, master ]
   schedule:
-    # 3:30 AM UTC = 9:00 AM IST (Monday to Saturday)
     - cron: '30 3 * * 1-6'
 
 jobs:
@@ -32,7 +31,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test1
-          path: build/test-results/test/
+          # Captures both XML data AND any screenshots captured by test1
+          path: |
+            build/test-results/test/
+            build/reports/screenshots/
           if-no-files-found: ignore
 
   test2:
@@ -57,7 +59,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test2
-          path: build/test-results/runSpecificJunitTest/
+          # Captures both XML data AND any screenshots captured by test2
+          path: |
+            build/test-results/runSpecificJunitTest/
+            build/reports/screenshots/
           if-no-files-found: ignore
 
   test3:
@@ -82,7 +87,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test3
-          path: build/test-results/runSpecificTestNGTest/
+          # Captures both XML data AND any screenshots captured by test3
+          path: |
+            build/test-results/runSpecificTestNGTest/
+            build/reports/screenshots/
           if-no-files-found: ignore
 
   master-report:
@@ -103,6 +111,7 @@ jobs:
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
 
+      # Downloads artifacts including their respective screenshots subfolders
       - name: Download Data 1
         uses: actions/download-artifact@v4
         continue-on-error: true
@@ -138,6 +147,8 @@ jobs:
           path: |
             build/reports/combined-report/
             build/reports/extent-dashboard.html
+            build/reports/download.jpeg
+            build/reports/screenshots/
 
       - name: Check test status for pipeline result
         if: |

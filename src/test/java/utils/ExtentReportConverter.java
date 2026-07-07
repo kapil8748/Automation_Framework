@@ -23,17 +23,15 @@ public class ExtentReportConverter {
         String fallbackOutputDir = "build/test-results";
         String reportTargetDestination = "build/reports/extent-dashboard.html";
 
-        // Create the directory if it doesn't exist
+        // Create reporting folder if missing
         File reportDir = new File("build/reports");
         if (!reportDir.exists()) {
             reportDir.mkdirs();
         }
 
-        // --- FIXED FOR GITHUB ACTIONS PERMANENT STORAGE ---
-        // Looks for the permanent asset in your project repository resources first
+        // --- STAGE PERMANENT WORKSPACE LOGO ---
         try {
             Path sourceLogo = Paths.get("src/test/resources/download.jpeg");
-            // Fallback to root if you decide to keep it in the root folder of your repository
             if (!Files.exists(sourceLogo)) {
                 sourceLogo = Paths.get("download.jpeg");
             }
@@ -42,9 +40,9 @@ public class ExtentReportConverter {
             
             if (Files.exists(sourceLogo)) {
                 Files.copy(sourceLogo, targetLogo, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Logo cloned from repository resources into report directory successfully.");
+                System.out.println("Branding Asset Loaded successfully.");
             } else {
-                System.out.println("Warning: download.jpeg asset missing from repository workspace.");
+                System.out.println("Warning: download.jpeg asset missing from repository workspace resources.");
             }
         } catch (Exception e) {
             System.err.println("Failed to transfer logo asset: " + e.getMessage());
@@ -57,6 +55,7 @@ public class ExtentReportConverter {
         spark.config().setDocumentTitle("SpaceX Automation Framework - Unified Executive Report");
         spark.config().setReportName("SpaceX CI/CD Consolidated Automation Run Results");
 
+        // CSS Override matching the exact compiled HTML layout
         String customCss = 
             ".nav-logo { " +
             "   width: 180px !important; " + 
@@ -121,15 +120,46 @@ public class ExtentReportConverter {
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
+                // --- ROBUST AGGREGATED SCREENSHOT ROUTING ---
                 String screenshotFilename = testName + ".png";
-                File screenshotFile = new File("build/reports/screenshots/" + screenshotFilename);
+                
+                // Track where screenshots land depending on which parallel test package generated them
+                File globalScreenshotLocation = new File("build/reports/screenshots/" + screenshotFilename);
+                
+                // Fallback scan loop inside download folders
+                File artifact1Screenshot = new File("build/artifacts/test1/screenshots/" + screenshotFilename);
+                File artifact2Screenshot = new File("build/artifacts/test2/screenshots/" + screenshotFilename);
+                File artifact3Screenshot = new File("build/artifacts/test3/screenshots/" + screenshotFilename);
 
-                if (screenshotFile.exists()) {
+                File resolvedTarget = null;
+                if (globalScreenshotLocation.exists()) {
+                    resolvedTarget = globalScreenshotLocation;
+                } else if (artifact1Screenshot.exists()) {
+                    resolvedTarget = artifact1Screenshot;
+                } else if (artifact2Screenshot.exists()) {
+                    resolvedTarget = artifact2Screenshot;
+                } else if (artifact3Screenshot.exists()) {
+                    resolvedTarget = artifact3Screenshot;
+                }
+
+                if (resolvedTarget != null) {
+                    // Create build/reports/screenshots directory if it hasn't been created yet
+                    File masterScreenshotDir = new File("build/reports/screenshots");
+                    if (!masterScreenshotDir.exists()) {
+                        masterScreenshotDir.mkdirs();
+                    }
+                    
+                    // Copy file to the destination folder so it is packaged correctly
+                    File localDestination = new File(masterScreenshotDir, screenshotFilename); 
+                    if (!resolvedTarget.getAbsolutePath().equals(localDestination.getAbsolutePath())) {
+                        Files.copy(resolvedTarget.toPath(), localDestination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
+
                     String relativeReportPath = "screenshots/" + screenshotFilename;
                     extentTest.fail("Failure Screen Capture:", 
                         MediaEntityBuilder.createScreenCaptureFromPath(relativeReportPath).build());
                 } else {
-                    extentTest.info("No corresponding failure screenshot found at: build/reports/screenshots/" + screenshotFilename);
+                    extentTest.info("No corresponding failure screenshot found named: " + screenshotFilename);
                 }
 
             } else if (failureBlock != null && failureBlock.contains("<skipped")) {
