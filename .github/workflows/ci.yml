@@ -28,17 +28,14 @@ jobs:
       - name: Run Case 1
         run: ./gradlew test --info
 
-      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 1
-      - name: Verify Test 1 Screenshots
+      # 📸 MAGIC STEP: Agar screenshot kisi bhi kone me chupa ho, use dhoondh kar sahi folder me daalo
+      - name: Consolidate Screenshots
         if: always()
         run: |
-          echo "=== Checking Test 1 Screenshots ==="
-          if [ -d "build/reports/screenshots" ]; then
-            echo "✅ Folder exists! Listing files:"
-            ls -la build/reports/screenshots/
-          else
-            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
-          fi
+          mkdir -p build/reports/screenshots/
+          find build/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) ! -path "build/reports/screenshots/*" -exec cp {} build/reports/screenshots/ \;
+          echo "=== Screenshots Captured ==="
+          ls -la build/reports/screenshots/
 
       - name: Upload Raw Data 1
         if: always()
@@ -69,17 +66,14 @@ jobs:
       - name: Run Case 2
         run: ./gradlew runSpecificJunitTest --info
 
-      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 2
-      - name: Verify Test 2 Screenshots
+      # 📸 MAGIC STEP: Test 2 ke liye bhi screenshots collect karo
+      - name: Consolidate Screenshots
         if: always()
         run: |
-          echo "=== Checking Test 2 Screenshots ==="
-          if [ -d "build/reports/screenshots" ]; then
-            echo "✅ Folder exists! Listing files:"
-            ls -la build/reports/screenshots/
-          else
-            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
-          fi
+          mkdir -p build/reports/screenshots/
+          find build/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) ! -path "build/reports/screenshots/*" -exec cp {} build/reports/screenshots/ \;
+          echo "=== Screenshots Captured ==="
+          ls -la build/reports/screenshots/
 
       - name: Upload Raw Data 2
         if: always()
@@ -110,27 +104,14 @@ jobs:
       - name: Run Case 3
         run: ./gradlew runSpecificTestNGTest --info
 
-      # 🔍 DEBUG STEP: Check if screenshots exist on runner for Test 3
-      - name: Verify Test 3 Screenshots
+      # 📸 MAGIC STEP: Test 3 ke liye bhi screenshots collect karo
+      - name: Consolidate Screenshots
         if: always()
         run: |
-          echo "=== Checking Test 3 Screenshots ==="
-          if [ -d "build/reports/screenshots" ]; then
-            echo "✅ Folder exists! Listing files:"
-            ls -la build/reports/screenshots/
-          else
-            echo "❌ Alarming! build/reports/screenshots/ folder hi nahi bana!"
-          fi
-
-      - name: Upload Raw Data 3
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifact-test3
-          path: |
-            build/test-results/runSpecificTestNGTest/
-            build/reports/screenshots/
-          if-no-files-found: ignore
+          mkdir -p build/reports/screenshots/
+          find build/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) ! -path "build/reports/screenshots/*" -exec cp {} build/reports/screenshots/ \;
+          echo "=== Screenshots Captured ==="
+          ls -la build/reports/screenshots/
 
   master-report:
     runs-on: ubuntu-latest
@@ -177,6 +158,8 @@ jobs:
           [ -d "build/tmp/test1/test-results/test" ] && cp -r build/tmp/test1/test-results/test/* build/test-results/test/ || true
           [ -d "build/tmp/test2/test-results/runSpecificJunitTest" ] && cp -r build/tmp/test2/test-results/runSpecificJunitTest/* build/test-results/runSpecificJunitTest/ || true
           [ -d "build/tmp/test3/test-results/runSpecificTestNGTest" ] && cp -r build/tmp/test3/test-results/runSpecificTestNGTest/* build/test-results/runSpecificTestNGTest/ || true
+          
+          # Saare test jobs ke screenshots ko extract karke master screenshots directory me daalna
           find build/tmp/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) -exec cp {} build/reports/screenshots/ \;
 
       - name: Compile Unified HTML Report
