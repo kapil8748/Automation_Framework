@@ -3,6 +3,7 @@ package utils;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.MediaEntityBuilder;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
 
@@ -25,10 +26,24 @@ public class ExtentReportConverter {
         ExtentReports extent = new ExtentReports();
         ExtentSparkReporter spark = new ExtentSparkReporter(reportTargetDestination);
         
-        // Customize your corporate framework dashboard look
+        // 1. Customize your corporate framework dashboard look
         spark.config().setTheme(Theme.DARK);
-        spark.config().setDocumentTitle("Automation Framework - Unified Executive Report");
+        spark.config().setDocumentTitle("Your Company Name - Unified Executive Report");
         spark.config().setReportName("CI/CD Consolidated Automation Run Results");
+
+        // 2. Inject CSS to add your Company Name and Company Logo to the brand sidebar area
+        String customCss = 
+            ".nav-logo { " +
+            "   background-image: url('https://yourcompany.com/path-to-logo.png') !important; " + // Update with your actual logo URL
+            "   background-size: contain !important; " +
+            "   background-repeat: no-repeat !important; " +
+            "   height: 35px !important; " +
+            "   width: 35px !important; " +
+            "   margin: 10px !important; " +
+            "} " +
+            ".brand-logo { font-weight: bold !important; font-size: 15px !important; padding-left: 5px !important; }";
+        spark.config().setCss(customCss);
+
         extent.attachReporter(spark);
 
         System.out.println("Processing raw framework outputs for Extent Conversion...");
@@ -83,6 +98,21 @@ public class ExtentReportConverter {
                 String errorMessage = failureBlock.replaceAll("<failure[^>]*>", "").replaceAll("</failure>", "").trim();
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
+
+                // 3. Handle Failure Screenshot Attachment dynamically
+                // Looks for files matching the testName layout (e.g., testName.png) inside your screenshots directory
+                String screenshotFilename = testName + ".png";
+                File screenshotFile = new File("build/reports/screenshots/" + screenshotFilename);
+
+                if (screenshotFile.exists()) {
+                    // Use relative pathing from build/reports/extent-dashboard.html to build/reports/screenshots/
+                    String relativeReportPath = "screenshots/" + screenshotFilename;
+                    extentTest.fail("Failure Screen Capture:", 
+                        MediaEntityBuilder.createScreenCaptureFromPath(relativeReportPath).build());
+                } else {
+                    extentTest.info("No corresponding failure screenshot found at: build/reports/screenshots/" + screenshotFilename);
+                }
+
             } else if (failureBlock != null && failureBlock.contains("<skipped")) {
                 extentTest.log(Status.SKIP, "Test Case Skipped.");
             } else {
