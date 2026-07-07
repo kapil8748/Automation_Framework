@@ -82,26 +82,44 @@ public class ExtentReportConverter {
         String content = new String(Files.readAllBytes(xmlFile.toPath()));
         String suiteName = xmlFile.getName().replace("TEST-", "").replace(".xml", "");
         
-        String testcaseRegex = "<testcase\\s+name=\"([^\"]+)\"\\s+classname=\"([^\"]+)\"\\s+time=\"([^\"]+)\"\\s*(?:/>|>(.*?)</testcase>)";
-        Matcher matcher = Pattern.compile(testcaseRegex, Pattern.DOTALL).matcher(content);
+        // Fixed regex: Captures the full outer node cleanly without bleed-through to adjacent sibling tags
+        String testcaseBlockRegex = "<testcase\\s+[^>]*>(?:.*?</testcase>|)";
+        Matcher blockMatcher = Pattern.compile(testcaseBlockRegex, Pattern.DOTALL).matcher(content);
         
-        while (matcher.find()) {
-            String testName = matcher.group(1);
-            String className = matcher.group(2);
-            String duration = matcher.group(3);
-            String failureBlock = matcher.group(4); 
+        // Individual field extraction expressions
+        Pattern namePattern = Pattern.compile("name=\"([^\"]+)\"");
+        Pattern classPattern = Pattern.compile("classname=\"([^\"]+)\"");
+        Pattern timePattern = Pattern.compile("time=\"([^\"]+)\"");
+
+        while (blockMatcher.find()) {
+            String testcaseBlock = blockMatcher.group();
+
+            Matcher mName = namePattern.matcher(testcaseBlock);
+            Matcher mClass = classPattern.matcher(testcaseBlock);
+            Matcher mTime = timePattern.matcher(testcaseBlock);
+
+            if (!mName.find() || !mClass.find() || !mTime.find()) {
+                continue; // Skip malformed nodes smoothly
+            }
+
+            String testName = mName.group(1);
+            String className = mClass.group(1);
+            String duration = mTime.group(1);
 
             ExtentTest extentTest = extent.createTest("[" + suiteName + "] " + className + " -> " + testName);
             extentTest.assignCategory(suiteName);
             extentTest.info("Execution Duration: " + duration + " seconds");
 
-            if (failureBlock != null && failureBlock.contains("<failure")) {
-                String errorMessage = failureBlock.replaceAll("<failure[^>]*>", "").replaceAll("</failure>", "").trim();
+            if (testcaseBlock.contains("<failure")) {
+                // Safely extract content between <failure> tags
+                String errorMessage = testcaseBlock.replaceAll("(?s).*<failure[^>]*>", "")
+                                                   .replaceAll("(?s)</failure>.*", "")
+                                                   .trim();
+                
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
-                // --- NEW FUZZY SCREENSHOT MATCHING ENGINE ---
-                // Searches through download locations for ANY image file matching the test metadata
+                // --- FUZZY SCREENSHOT MATCHING ENGINE ---
                 File masterScreenshotDir = new File("build/reports/screenshots");
                 if (!masterScreenshotDir.exists()) {
                     masterScreenshotDir.mkdirs();
@@ -126,7 +144,7 @@ public class ExtentReportConverter {
                     extentTest.info("No screenshot match found for test: " + testName + " or class: " + cleanClassName);
                 }
 
-            } else if (failureBlock != null && failureBlock.contains("<skipped")) {
+            } else if (testcaseBlock.contains("<skipped")) {
                 extentTest.log(Status.SKIP, "Test Case Skipped.");
             } else {
                 extentTest.log(Status.PASS, "Passed successfully.");
@@ -134,7 +152,6 @@ public class ExtentReportConverter {
         }
     }
 
-    // Helper method to look into multiple possible screenshot directory formats
     private static File findScreenshotMatch(String testName, String className) {
         String[] lookupFolders = {
             "build/reports/screenshots",
@@ -152,7 +169,6 @@ public class ExtentReportConverter {
                     for (File f : files) {
                         String name = f.getName().toLowerCase();
                         if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
-                            // Check if screenshot filename contains testName or className keywords
                             if (name.contains(testName.toLowerCase()) || name.contains(className.toLowerCase())) {
                                 return f;
                             }
