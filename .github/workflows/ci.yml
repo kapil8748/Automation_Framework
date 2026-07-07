@@ -5,6 +5,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    # 3:30 AM UTC = 9:00 AM IST (Monday to Saturday)
+    - cron: '30 3 * * 1-6'
 
 jobs:
   test1:
@@ -29,7 +32,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test1
-          # Upload only the binary folder so Gradle can parse it smoothly on download
           path: build/test-results/test/binary/
           if-no-files-found: ignore
 
@@ -55,7 +57,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test2
-          # Upload only the binary folder so Gradle can parse it smoothly on download
           path: build/test-results/runSpecificJunitTest/binary/
           if-no-files-found: ignore
 
@@ -81,11 +82,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test3
-          # Upload only the binary folder so Gradle can parse it smoothly on download
           path: build/test-results/runSpecificTestNGTest/binary/
           if-no-files-found: ignore
 
-master-report:
+  master-report:
     runs-on: ubuntu-latest
     needs: [test1, test2, test3]
     if: always()
@@ -103,7 +103,6 @@ master-report:
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
 
-      # Unpacks files directly to build/artifacts/test1/ which will contain the binary files
       - name: Download Data 1
         uses: actions/download-artifact@v4
         continue-on-error: true
@@ -125,16 +124,13 @@ master-report:
           name: artifact-test3
           path: build/artifacts/test3
 
-      # 1. Compiles your standard combined HTML test report first
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
 
-      # 2. NEW STEP: Runs your custom task to convert the XML data into Extent Reports
       - name: Convert to Extent Report Dashboard
         if: always()
         run: ./gradlew generateExtentReport --info
 
-      # 3. UPDATED STEP: Uploads both the native Gradle combined report and the Extent Dashboard
       - name: Upload Single Consolidated Report
         uses: actions/upload-artifact@v4
         with:
