@@ -92,6 +92,9 @@ tasks.register("generateExtentReport", JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = "utils.ExtentReportConverter"
 
+    // FORCE this task to run only AFTER the tests are completely done
+    mustRunAfter tasks.named("test"), tasks.named("runSpecificJunitTest"), tasks.named("runSpecificTestNGTest")
+
     // Ensure it triggers even if previous parallel test pipelines threw errors
     outputs.upToDateWhen { false }
 }

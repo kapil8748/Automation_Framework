@@ -32,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test1
-          path: build/test-results/test/binary/
+          path: build/test-results/test/
           if-no-files-found: ignore
 
   test2:
@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test2
-          path: build/test-results/runSpecificJunitTest/binary/
+          path: build/test-results/runSpecificJunitTest/
           if-no-files-found: ignore
 
   test3:
@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: artifact-test3
-          path: build/test-results/runSpecificTestNGTest/binary/
+          path: build/test-results/runSpecificTestNGTest/
           if-no-files-found: ignore
 
   master-report:
