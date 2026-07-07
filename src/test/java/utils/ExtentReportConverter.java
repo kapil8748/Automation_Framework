@@ -31,22 +31,17 @@ public class ExtentReportConverter {
         spark.config().setDocumentTitle("SpaceX Automation Framework - Unified Executive Report");
         spark.config().setReportName("SpaceX CI/CD Consolidated Automation Run Results");
 
-        // 2. Inject CSS to hide default icon and style the SpaceX brand identity
+        // 2. Corrected CSS targeting the exact inline structure of the Extent framework
         String customCss = 
-            ".vheader .nav-logo { display: none !important; } " + // Hides old icon wrapper
-            ".side-nav .side-nav-inner { margin-top: 20px; } " +
-            "/* Custom Top-Left Branding Text Placement */ " +
-            ".vheader::before { " +
-            "   content: 'SPACEX'; " +
-            "   font-family: 'Arial Black', Gadget, sans-serif; " +
-            "   font-size: 18px; " +
-            "   font-weight: 900; " +
-            "   color: #ffffff; " +
-            "   letter-spacing: 3px; " +
-            "   padding-left: 20px; " +
-            "   line-height: 70px; " +
-            "   display: inline-block; " +
-            "   float: left; " +
+            ".nav-logo .logo { " +
+            "   background-image: url('download.jpeg') !important; " + // Relative to where extent-dashboard.html is saved
+            "   background-size: contain !important; " +
+            "   background-repeat: no-repeat !important; " +
+            "   background-position: center !important; " +
+            "   width: 120px !important; " + // Adjusted width to accommodate the wide SpaceX layout
+            "} " +
+            ".nav-logo { " +
+            "   width: 140px !important; " +
             "}";
         spark.config().setCss(customCss);
 
@@ -92,7 +87,6 @@ public class ExtentReportConverter {
             String testName = matcher.group(1);
             String className = matcher.group(2);
             String duration = matcher.group(3);
-            // Group 4 holds the failure block if it exists; it will be null for self-closing passing tags
             String failureBlock = matcher.group(4); 
 
             ExtentTest extentTest = extent.createTest("[" + suiteName + "] " + className + " -> " + testName);
@@ -100,18 +94,15 @@ public class ExtentReportConverter {
             extentTest.info("Execution Duration: " + duration + " seconds");
 
             if (failureBlock != null && failureBlock.contains("<failure")) {
-                // Extract error details cleanly
                 String errorMessage = failureBlock.replaceAll("<failure[^>]*>", "").replaceAll("</failure>", "").trim();
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
                 // 3. Dynamic Screenshot Lookup Logic
-                // Converts test details into the screenshot name syntax you map locally (e.g., initializationError.png)
                 String screenshotFilename = testName + ".png";
                 File screenshotFile = new File("build/reports/screenshots/" + screenshotFilename);
 
                 if (screenshotFile.exists()) {
-                    // Uses relative system path routing from layout of 'build/reports/extent-dashboard.html'
                     String relativeReportPath = "screenshots/" + screenshotFilename;
                     extentTest.fail("Failure Screen Capture:", 
                         MediaEntityBuilder.createScreenCaptureFromPath(relativeReportPath).build());
