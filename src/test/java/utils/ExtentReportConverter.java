@@ -26,22 +26,28 @@ public class ExtentReportConverter {
         ExtentReports extent = new ExtentReports();
         ExtentSparkReporter spark = new ExtentSparkReporter(reportTargetDestination);
         
-        // 1. Customize your corporate framework dashboard look
+        // 1. Customize your dashboard branding with SpaceX details
         spark.config().setTheme(Theme.DARK);
-        spark.config().setDocumentTitle("Your Company Name - Unified Executive Report");
-        spark.config().setReportName("CI/CD Consolidated Automation Run Results");
+        spark.config().setDocumentTitle("SpaceX Automation Framework - Unified Executive Report");
+        spark.config().setReportName("SpaceX CI/CD Consolidated Automation Run Results");
 
-        // 2. Inject CSS to add your Company Name and Company Logo to the brand sidebar area
+        // 2. Inject CSS to hide default icon and style the SpaceX brand identity
         String customCss = 
-            ".nav-logo { " +
-            "   background-image: url('https://yourcompany.com/path-to-logo.png') !important; " + // Update with your actual logo URL
-            "   background-size: contain !important; " +
-            "   background-repeat: no-repeat !important; " +
-            "   height: 35px !important; " +
-            "   width: 35px !important; " +
-            "   margin: 10px !important; " +
-            "} " +
-            ".brand-logo { font-weight: bold !important; font-size: 15px !important; padding-left: 5px !important; }";
+            ".vheader .nav-logo { display: none !important; } " + // Hides old icon wrapper
+            ".side-nav .side-nav-inner { margin-top: 20px; } " +
+            "/* Custom Top-Left Branding Text Placement */ " +
+            ".vheader::before { " +
+            "   content: 'SPACEX'; " +
+            "   font-family: 'Arial Black', Gadget, sans-serif; " +
+            "   font-size: 18px; " +
+            "   font-weight: 900; " +
+            "   color: #ffffff; " +
+            "   letter-spacing: 3px; " +
+            "   padding-left: 20px; " +
+            "   line-height: 70px; " +
+            "   display: inline-block; " +
+            "   float: left; " +
+            "}";
         spark.config().setCss(customCss);
 
         extent.attachReporter(spark);
@@ -99,13 +105,13 @@ public class ExtentReportConverter {
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
-                // 3. Handle Failure Screenshot Attachment dynamically
-                // Looks for files matching the testName layout (e.g., testName.png) inside your screenshots directory
+                // 3. Dynamic Screenshot Lookup Logic
+                // Converts test details into the screenshot name syntax you map locally (e.g., initializationError.png)
                 String screenshotFilename = testName + ".png";
                 File screenshotFile = new File("build/reports/screenshots/" + screenshotFilename);
 
                 if (screenshotFile.exists()) {
-                    // Use relative pathing from build/reports/extent-dashboard.html to build/reports/screenshots/
+                    // Uses relative system path routing from layout of 'build/reports/extent-dashboard.html'
                     String relativeReportPath = "screenshots/" + screenshotFilename;
                     extentTest.fail("Failure Screen Capture:", 
                         MediaEntityBuilder.createScreenCaptureFromPath(relativeReportPath).build());
