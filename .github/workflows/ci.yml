@@ -85,7 +85,7 @@ jobs:
           path: build/test-results/runSpecificTestNGTest/binary/
           if-no-files-found: ignore
 
-  master-report:
+master-report:
     runs-on: ubuntu-latest
     needs: [test1, test2, test3]
     if: always()
@@ -125,14 +125,23 @@ jobs:
           name: artifact-test3
           path: build/artifacts/test3
 
+      # 1. Compiles your standard combined HTML test report first
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
 
+      # 2. NEW STEP: Runs your custom task to convert the XML data into Extent Reports
+      - name: Convert to Extent Report Dashboard
+        if: always()
+        run: ./gradlew generateExtentReport --info
+
+      # 3. UPDATED STEP: Uploads both the native Gradle combined report and the Extent Dashboard
       - name: Upload Single Consolidated Report
         uses: actions/upload-artifact@v4
         with:
           name: single-consolidated-report
-          path: build/reports/combined-report/
+          path: |
+            build/reports/combined-report/
+            build/reports/extent-dashboard.html
 
       - name: Check test status for pipeline result
         if: |

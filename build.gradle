@@ -23,6 +23,11 @@ dependencies {
     testRuntimeOnly  'org.junit.jupiter:junit-jupiter-engine:5.10.2'
     testRuntimeOnly  'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.testng:testng:7.10.2'
+    // Existing framework loaders...
+    implementation 'com.aventstack:extentreports:5.1.1'
+    
+    // Add jsoup to easily parse any extra HTML text strings if needed
+    testImplementation 'org.jsoup:jsoup:1.17.2'
 }
 
 // Case 1: Default JUnit 5 tests
@@ -78,4 +83,15 @@ tasks.register("combinedReport", TestReport) {
         ]
         targetDirs.any { it.exists() }
     }
+}
+
+tasks.register("generateExtentReport", JavaExec) {
+    group = "verification"
+    description = "Aggregates raw test metadata XML files into an unified Extent Report dashboard."
+    
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "utils.ExtentReportConverter"
+
+    // Ensure it triggers even if previous parallel test pipelines threw errors
+    outputs.upToDateWhen { false }
 }
