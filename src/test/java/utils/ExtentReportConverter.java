@@ -23,26 +23,20 @@ public class ExtentReportConverter {
         String fallbackOutputDir = "build/test-results";
         String reportTargetDestination = "build/reports/extent-dashboard.html";
 
-        // Create reporting folder if missing
         File reportDir = new File("build/reports");
         if (!reportDir.exists()) {
             reportDir.mkdirs();
         }
 
-        // --- STAGE PERMANENT WORKSPACE LOGO ---
         try {
             Path sourceLogo = Paths.get("src/test/resources/download.jpeg");
             if (!Files.exists(sourceLogo)) {
                 sourceLogo = Paths.get("download.jpeg");
             }
-            
             Path targetLogo = Paths.get("build/reports/download.jpeg");
-            
             if (Files.exists(sourceLogo)) {
                 Files.copy(sourceLogo, targetLogo, StandardCopyOption.REPLACE_EXISTING);
                 System.out.println("Branding Asset Loaded successfully.");
-            } else {
-                System.out.println("Warning: download.jpeg asset missing from repository workspace resources.");
             }
         } catch (Exception e) {
             System.err.println("Failed to transfer logo asset: " + e.getMessage());
@@ -52,27 +46,13 @@ public class ExtentReportConverter {
         ExtentSparkReporter spark = new ExtentSparkReporter(reportTargetDestination);
         
         spark.config().setTheme(Theme.DARK);
-        spark.config().setDocumentTitle("SpaceX Automation Framework - Unified Executive Report");
-        spark.config().setReportName("SpaceX CI/CD Consolidated Automation Run Results");
+        spark.config().setDocumentTitle("ABC Company Automation Framework - Unified Executive Report");
+        spark.config().setReportName("ABC Company CI/CD Consolidated Automation Run Results");
 
-        // CSS Override matching the exact compiled HTML layout
         String customCss = 
-            ".nav-logo { " +
-            "   width: 180px !important; " + 
-            "   padding-left: 10px !important; " +
-            "} " +
-            ".nav-logo .logo { " +
-            "   background-image: url('download.jpeg') !important; " + 
-            "   background-size: contain !important; " +
-            "   background-repeat: no-repeat !important; " +
-            "   background-position: left center !important; " +
-            "   width: 160px !important; " + 
-            "   height: 40px !important; " +
-            "   margin-top: 15px !important; " +
-            "} " +
-            ".header.navbar .vheader .nav-left { " +
-            "   padding-left: 30px !important; " +
-            "}";
+            ".nav-logo { width: 180px !important; padding-left: 10px !important; } " +
+            ".nav-logo .logo { background-image: url('download.jpeg') !important; background-size: contain !important; background-repeat: no-repeat !important; background-position: left center !important; width: 160px !important; height: 40px !important; margin-top: 15px !important; } " +
+            ".header.navbar .vheader .nav-left { padding-left: 30px !important; }";
         spark.config().setCss(customCss);
 
         extent.attachReporter(spark);
@@ -120,46 +100,30 @@ public class ExtentReportConverter {
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
 
-                // --- ROBUST AGGREGATED SCREENSHOT ROUTING ---
-                String screenshotFilename = testName + ".png";
-                
-                // Track where screenshots land depending on which parallel test package generated them
-                File globalScreenshotLocation = new File("build/reports/screenshots/" + screenshotFilename);
-                
-                // Fallback scan loop inside download folders
-                File artifact1Screenshot = new File("build/artifacts/test1/screenshots/" + screenshotFilename);
-                File artifact2Screenshot = new File("build/artifacts/test2/screenshots/" + screenshotFilename);
-                File artifact3Screenshot = new File("build/artifacts/test3/screenshots/" + screenshotFilename);
-
-                File resolvedTarget = null;
-                if (globalScreenshotLocation.exists()) {
-                    resolvedTarget = globalScreenshotLocation;
-                } else if (artifact1Screenshot.exists()) {
-                    resolvedTarget = artifact1Screenshot;
-                } else if (artifact2Screenshot.exists()) {
-                    resolvedTarget = artifact2Screenshot;
-                } else if (artifact3Screenshot.exists()) {
-                    resolvedTarget = artifact3Screenshot;
+                // --- NEW FUZZY SCREENSHOT MATCHING ENGINE ---
+                // Searches through download locations for ANY image file matching the test metadata
+                File masterScreenshotDir = new File("build/reports/screenshots");
+                if (!masterScreenshotDir.exists()) {
+                    masterScreenshotDir.mkdirs();
                 }
 
-                if (resolvedTarget != null) {
-                    // Create build/reports/screenshots directory if it hasn't been created yet
-                    File masterScreenshotDir = new File("build/reports/screenshots");
-                    if (!masterScreenshotDir.exists()) {
-                        masterScreenshotDir.mkdirs();
-                    }
+                String cleanClassName = className.contains(".") ? className.substring(className.lastIndexOf(".") + 1) : className;
+                File resolvedScreenshot = findScreenshotMatch(testName, cleanClassName);
+
+                if (resolvedScreenshot != null && resolvedScreenshot.exists()) {
+                    String destinationFilename = resolvedScreenshot.getName();
+                    File localDestination = new File(masterScreenshotDir, destinationFilename);
                     
-                    // Copy file to the destination folder so it is packaged correctly
-                    File localDestination = new File(masterScreenshotDir, screenshotFilename); 
-                    if (!resolvedTarget.getAbsolutePath().equals(localDestination.getAbsolutePath())) {
-                        Files.copy(resolvedTarget.toPath(), localDestination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    if (!resolvedScreenshot.getAbsolutePath().equals(localDestination.getAbsolutePath())) {
+                        Files.copy(resolvedScreenshot.toPath(), localDestination.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
 
-                    String relativeReportPath = "screenshots/" + screenshotFilename;
+                    String relativeReportPath = "screenshots/" + destinationFilename;
                     extentTest.fail("Failure Screen Capture:", 
                         MediaEntityBuilder.createScreenCaptureFromPath(relativeReportPath).build());
+                    System.out.println("Attached screenshot match: " + destinationFilename);
                 } else {
-                    extentTest.info("No corresponding failure screenshot found named: " + screenshotFilename);
+                    extentTest.info("No screenshot match found for test: " + testName + " or class: " + cleanClassName);
                 }
 
             } else if (failureBlock != null && failureBlock.contains("<skipped")) {
@@ -168,5 +132,35 @@ public class ExtentReportConverter {
                 extentTest.log(Status.PASS, "Passed successfully.");
             }
         }
+    }
+
+    // Helper method to look into multiple possible screenshot directory formats
+    private static File findScreenshotMatch(String testName, String className) {
+        String[] lookupFolders = {
+            "build/reports/screenshots",
+            "build/artifacts/test1/screenshots",
+            "build/artifacts/test2/screenshots",
+            "build/artifacts/test3/screenshots",
+            "build/screenshots"
+        };
+
+        for (String folderPath : lookupFolders) {
+            File dir = new File(folderPath);
+            if (dir.exists() && dir.isDirectory()) {
+                File[] files = dir.listFiles();
+                if (files != null) {
+                    for (File f : files) {
+                        String name = f.getName().toLowerCase();
+                        if (name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg")) {
+                            // Check if screenshot filename contains testName or className keywords
+                            if (name.contains(testName.toLowerCase()) || name.contains(className.toLowerCase())) {
+                                return f;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
