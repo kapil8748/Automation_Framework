@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExtentReportConverter {
 
@@ -58,29 +60,31 @@ public class ExtentReportConverter {
     }
 
     private static void parseTestXmlFile(ExtentReports extent, File xmlFile) throws Exception {
-        // Quick extraction mapping metadata inside standard test suites
         String content = new String(Files.readAllBytes(xmlFile.toPath()));
-        
         String suiteName = xmlFile.getName().replace("TEST-", "").replace(".xml", "");
         
-        // Simple regex to extract individual test case names and outcomes
-        java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("<testcase name=\"([^\"]+)\" classname=\"([^\"]+)\" time=\"([^\"]+)\">(.*?)</testcase>", java.util.regex.Pattern.DOTALL).matcher(content);
+        // Robust regex matching BOTH self-closing passing testcases (/>) AND multi-line failure testcases (>(.*?)</testcase>)
+        String testcaseRegex = "<testcase\\s+name=\"([^\"]+)\"\\s+classname=\"([^\"]+)\"\\s+time=\"([^\"]+)\"\\s*(?:/>|>(.*?)</testcase>)";
+        Matcher matcher = Pattern.compile(testcaseRegex, Pattern.DOTALL).matcher(content);
         
         while (matcher.find()) {
             String testName = matcher.group(1);
             String className = matcher.group(2);
             String duration = matcher.group(3);
-            String failureBlock = matcher.group(4).trim();
+            // Group 4 holds the failure block if it exists; it will be null for self-closing passing tags
+            String failureBlock = matcher.group(4); 
 
             ExtentTest extentTest = extent.createTest("[" + suiteName + "] " + className + " -> " + testName);
             extentTest.assignCategory(suiteName);
             extentTest.info("Execution Duration: " + duration + " seconds");
 
-            if (failureBlock.contains("<failure")) {
-                // Extract error details safely
+            if (failureBlock != null && failureBlock.contains("<failure")) {
+                // Extract error details cleanly
                 String errorMessage = failureBlock.replaceAll("<failure[^>]*>", "").replaceAll("</failure>", "").trim();
                 extentTest.log(Status.FAIL, "Test Execution Failed!");
                 extentTest.fail("<pre>" + errorMessage + "</pre>");
+            } else if (failureBlock != null && failureBlock.contains("<skipped")) {
+                extentTest.log(Status.SKIP, "Test Case Skipped.");
             } else {
                 extentTest.log(Status.PASS, "Passed successfully.");
             }
