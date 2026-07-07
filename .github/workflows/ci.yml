@@ -93,7 +93,7 @@ jobs:
             build/reports/screenshots/
           if-no-files-found: ignore
 
-  master-report:
+master-report:
     runs-on: ubuntu-latest
     needs: [test1, test2, test3]
     if: always()
@@ -111,28 +111,42 @@ jobs:
             ${{ runner.os }}-gradle-
       - uses: gradle/actions/setup-gradle@v4
 
-      # Downloads artifacts including their respective screenshots subfolders
+      # 1. Download artifacts to a temporary staging area
       - name: Download Data 1
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: artifact-test1
-          path: build/artifacts/test1
+          path: build/tmp/test1
 
       - name: Download Data 2
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: artifact-test2
-          path: build/artifacts/test2
+          path: build/tmp/test2
 
       - name: Download Data 3
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: artifact-test3
-          path: build/artifacts/test3
+          path: build/tmp/test3
 
+      # 2. Reconstruct the original folder structures before compiling the report
+      - name: Restructure Artifacts for Reporting
+        run: |
+          mkdir -p build/test-results/test/ build/test-results/runSpecificJunitTest/ build/test-results/runSpecificTestNGTest/ build/reports/screenshots/
+          
+          # Move XML test results to their expected locations
+          [ -d "build/tmp/test1/test-results/test" ] && cp -r build/tmp/test1/test-results/test/* build/test-results/test/ || true
+          [ -d "build/tmp/test2/test-results/runSpecificJunitTest" ] && cp -r build/tmp/test2/test-results/runSpecificJunitTest/* build/test-results/runSpecificJunitTest/ || true
+          [ -d "build/tmp/test3/test-results/runSpecificTestNGTest" ] && cp -r build/tmp/test3/test-results/runSpecificTestNGTest/* build/test-results/runSpecificTestNGTest/ || true
+          
+          # Consolidate ALL screenshots into the single, expected screenshots directory
+          find build/tmp/ -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) -exec cp {} build/reports/screenshots/ \;
+
+      # 3. Compile reports now that paths are aligned
       - name: Compile Unified HTML Report
         run: ./gradlew combinedReport --info
 
