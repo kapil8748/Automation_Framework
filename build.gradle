@@ -61,18 +61,24 @@ tasks.register("runSpecificTestNGTest", Test) {
 tasks.register("combinedReport", TestReport) {
     destinationDirectory = layout.buildDirectory.dir("reports/combined-report")
 
-    // Cleaned up using modern, safe Providers that point directly to output directories
+    // 1. Keep this as it is—pointing directly to the binary outputs
     testResults.from(
         layout.buildDirectory.dir("test-results/test/binary"),
         layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary"),
         layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
     )
 
+    // 2. CRITICAL FIX: Extract the directory providers OUTSIDE the execution closure
+    def testBinDir = layout.buildDirectory.dir("test-results/test/binary")
+    def junitBinDir = layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary")
+    def testngBinDir = layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary")
+
+    // 3. Now the execution block only references the localized variables, NOT the 'layout' object
     onlyIf {
         def targetDirs = [
-            layout.buildDirectory.dir("test-results/test/binary").get().asFile,
-            layout.buildDirectory.dir("test-results/runSpecificJunitTest/binary").get().asFile,
-            layout.buildDirectory.dir("test-results/runSpecificTestNGTest/binary").get().asFile
+            testBinDir.get().asFile,
+            junitBinDir.get().asFile,
+            testngBinDir.get().asFile
         ]
         targetDirs.any { it.exists() }
     }
